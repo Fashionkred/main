@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Net;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+
+/// <summary>
+/// Summary description for AffiliateLink
+/// </summary>
+public class AffiliateLink
+{
+    public static string affiliateUrl = "http://click.linksynergy.com/fs-bin/click?id=7cbeECDvy68&subid=&offerid=276224.1&type=10&tmpid=8158&RD_PARM1={0}";
+
+    public static Stream GenerateStreamFromString(string s)
+    {
+        MemoryStream stream = new MemoryStream();
+        StreamWriter writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
+    }
+
+    public static string ShortLink(string longLink)
+    {
+        var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://www.googleapis.com/urlshortener/v1/url");
+        httpWebRequest.ContentType = "application/json";
+        httpWebRequest.Method = "POST";
+
+        using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+        {
+            string json = "{\"longUrl\":\"" + longLink + "\"}";
+            streamWriter.Write(json);
+        }
+
+        var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+        {
+            string responseText = streamReader.ReadToEnd();
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(GoogleShortener));
+            GoogleShortener shortUrl = (GoogleShortener)ser.ReadObject(GenerateStreamFromString(responseText));
+            return shortUrl.id;
+        }
+
+    }
+
+    public static string GetOriginalLink(string url)
+    {
+        using (WebClient client = new WebClient())
+        {
+
+            using (Stream stream = client.OpenRead(url))
+            {
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string content = reader.ReadToEnd();
+                    int startindex = content.IndexOf("RD_PARM1") ;
+                    if ( startindex > 0)
+                    {
+                        content = content.Substring(startindex + 8);
+                        content = content.Substring(content.IndexOf("&amp;");
+                        return content;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static string GetAffiliateLink(string shopStyleLink)
+    {
+        string sourceUrl = GetOriginalLink(shopStyleLink);
+        sourceUrl = sourceUrl.Substring(0, sourceUrl.IndexOf("?"));
+
+        string longUrl = string.Format(affiliateUrl, HttpUtility.UrlEncode(sourceUrl));
+        return ShortLink(longUrl);
+    }
+}
+
+[DataContract]
+public class GoogleShortener
+{
+    [DataMember]
+    public string id;
+}
