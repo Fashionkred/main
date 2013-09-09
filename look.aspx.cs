@@ -189,7 +189,7 @@ public partial class Outfit : BasePage
         //SetOGTags
         SetOGTags();
 
-        //if the look's contest is diefferent than session contest - reset session contest
+        //deprecating contests -if the look's contest is different than session contest - reset session contest
         if (this.Session["contest"] != null)
         {
             if (look.contestId != (int)this.Session["contest"])
@@ -362,6 +362,14 @@ public partial class Outfit : BasePage
         UserId.Text = this.userId.ToString();
         UserShare.Text = this.user.IsPrivate ? "0" : "1";
         CreatorId.Text = look.creator.id.ToString();
+        LookTitle.Text = look.title;
+        LookTags.Text = look.TagsFormatted();
+
+        if (look.originalLookId != 0)
+        {
+            ReStyled.Text = "Restyled from this look";
+            ReStyled.NavigateUrl = "look.aspx?lid=" + look.originalLookId;
+        }
 
         //Set the following class
         if (UserProfile.IsFollower(look.creator.id, this.userId, db))

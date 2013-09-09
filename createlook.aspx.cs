@@ -13,9 +13,10 @@ using System.IO;
 public partial class createlook : System.Web.UI.Page
 {
     //Variables
-    private long productId1;
-    private long productId2;
-    private long productId3;
+    private string tagMap;
+    private string productMap;
+    private string title;
+    private long originalLookId;
     private long userId;
     private int contestId;
     private string colormap;
@@ -106,28 +107,47 @@ public partial class createlook : System.Web.UI.Page
     private bool SetupVariables()
     {
         // fail if any of these variables are missing
-        if (this.Request.QueryString["pid1"] == null
-                || this.Request.QueryString["pid2"] == null
-                || this.Request.QueryString["uid"] == null)
-        {
-            return false;
-        }
-
         
-
-        if (this.Request.QueryString["pid1"] != null)
+        string[] products = {string.Empty};
+        if (this.Request.QueryString["productmap"] != null)
         {
-            this.productId1 = long.Parse(this.Request.QueryString["pid1"]);
+            products = HttpUtility.UrlDecode(Request.QueryString["productmap"]).Split('|');
+            this.productMap = "<ProductList>";
+
+            for (int i = 0; i < products.Count(); i++)
+            {
+                this.productMap += ("<Product pId=\"" + products[i] + "\"/>");
+            }
+            this.productMap += "</ProductList>";
+
         }
 
-        if (this.Request.QueryString["pid2"] != null)
+        if (this.Request.QueryString["tagmap"] != null )
         {
-            this.productId2 = long.Parse(this.Request.QueryString["pid2"]);
+            string[] tags = HttpUtility.UrlDecode(Request.QueryString["tagmap"]).Split('|');
+            this.tagMap = "<TagList>";
+
+            for (int i = 0; i < tags.Count(); i++)
+            {
+                if(tags[i] != "undefined")
+                    tagMap += ("<Tag tName=\"" + tags[i].TrimStart(' ') + "\"/>");
+            }
+            this.tagMap += "</TagList>";
+
         }
 
-        if (this.Request.QueryString["pid3"] != null)
+        if (this.Request.QueryString["title"] != null && this.Request.QueryString["title"] != "undefined")
         {
-            this.productId3 = long.Parse(this.Request.QueryString["pid3"]);
+            this.title = this.Request.QueryString["title"];
+        }
+
+        if (!string.IsNullOrEmpty(this.Request.QueryString["originalLookId"]))
+        {
+            this.originalLookId = long.Parse(this.Request.QueryString["originalLookId"].ToString());
+        }
+        else
+        {
+            this.originalLookId = 0;
         }
 
         if (this.Request.QueryString["uid"] != null)
@@ -146,21 +166,7 @@ public partial class createlook : System.Web.UI.Page
                     continue;
                 else
                 {
-                    long productId = this.productId1;
-                    switch (i)
-                    {
-                        case 0:
-                            productId = this.productId1;
-                            break;
-                        case 1:
-                            productId = this.productId2;
-                            break;
-                        case 2:
-                            productId = this.productId3;
-                            break;
-                    }
-
-                    colormap += ("<Color pId=\"" + productId + "\" cId=\"" + colors[i] + "\" />");
+                    colormap += ("<Color pId=\"" + products[i] + "\" cId=\"" + colors[i] + "\" />");
                 }
             }
             this.colormap += "</ColorList>";
@@ -172,7 +178,12 @@ public partial class createlook : System.Web.UI.Page
     private LookMessage SaveLook()
     {
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
-        string query = "EXEC [stp_SS_SaveLook] @pId1=" + this.productId1 + ", @pId2=" + this.productId2 + ", @uid=" + this.userId + ",@contestId="+this.contestId +",@pId3=" + this.productId3 + ",@color ='" + this.colormap +"'";
+        string query = "EXEC [stp_SS_SaveLook] @product='" + productMap + "', @uid=" + this.userId + ",@tag='" + tagMap + "', @title=N'"+ this.title + "',@color ='" + this.colormap +"'";
+        if (originalLookId != 0)
+        {
+            query += (", @originalLook=" + this.originalLookId);
+        }
+
         SqlConnection myConnection = new SqlConnection(db);
 
         LookMessage msg = new LookMessage();

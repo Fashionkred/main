@@ -154,6 +154,10 @@
     </ul>
   </asp:Panel>  
 
+  <div>
+    <strong>Title: </strong><asp:Label ID="LookTitle" runat="server" /> <strong>Tag: </strong><asp:Label ID="LookTags" runat="server" />
+    <asp:HyperLink ID="ReStyled" runat="server" Style="color:#AB6666;font-weight:bold;" />
+  </div>
   <div class="buttons-wrapper">
 		<asp:Panel ID="LeftButtonDisabled" runat="server" CssClass="left-button-disabled">
 			<asp:Panel ID="LeftTextButtonDisabled" runat="server" CssClass="text-button-disabled"></asp:Panel>

@@ -117,6 +117,15 @@
 			</div>
         </div>
     </div>
+
+    <div class="button-wrapper">
+        <center>
+            <span><strong>Title:  </strong></span>
+            <input id="title" type="text" style="width:400px;" />
+            <span><strong>Tags:  </strong></span>
+            <input id="tags" type="text" style="width:200px;" />
+        </center>
+    </div>
     <div class="buttons-wrapper">
         <div class="create-cant-finish">
             <div class="text-button-finish">

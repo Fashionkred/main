@@ -187,7 +187,6 @@ namespace ShopSenseDemo
                         look.creator.pic = dr["Pic"].ToString();
                         look.contestName = dr["contestname"].ToString();
                         looks.Add(look);
-                            
                     }
                 }
             }

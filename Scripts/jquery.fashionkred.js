@@ -218,10 +218,22 @@ function createlook() {
 
     var colormap = p1color + "%7C" + p2color + "%7C" + p3color;
     var productmap = pid1 + "%7C" + pid2 + "%7C" + pid3;
+    //TODO: Add tag and title field in create look page
+    var tags = $('#tags').val().split(',');
+    var tagmap;
+    if (tags.length > 0) {
+        tagmap = tags[0] ;
+        for (var i = 1; i < tags.length; i++) {
+            tagmap += ("%7C" + tags[i]);
+        }
+    }
+    
+    var title = $('#title').val();
+    var originalLookId = $('#MainContent_OriginalLook').text();
 
     //Post look to DB
     $.ajax({
-        url: hostname + "/createlook.aspx?pid1=" + pid1 + "&pId2=" + pid2 + "&pId3=" + pid3 + "&uid=" + userid + "&colormap=" + colormap + "&callback=?",
+        url: hostname + "/createlook.aspx?productmap=" + productmap + "&tagmap=" + tagmap +"&title=" + title + "&uid="  + userid + "&originalLookId=" + originalLookId + "&colormap=" + colormap + "&callback=?",
         cache: false,
         dataType: 'jsonp',
         jsonpCallback: 'UpdateCreateLook',
