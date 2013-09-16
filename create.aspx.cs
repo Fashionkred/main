@@ -80,7 +80,7 @@ public partial class create : BasePage
             this.contestId = int.Parse(Request.QueryString["contestid"]);
             this.Session["contest"] = this.contestId;
         }
-        else if (this.Session["contest"] == null)
+        else if (this.Session["contest"] == null || (int)this.Session["contest"] == 0)
         {
             this.contestId = int.Parse(ConfigurationManager.AppSettings["ContestId1"]);
             this.Session["contest"] = this.contestId;

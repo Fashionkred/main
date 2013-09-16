@@ -159,11 +159,11 @@ namespace ShopSenseDemo
         {
             List<Look> looks = new List<Look>();
 
-            string query = "EXEC [stp_SS_GetHPLooks] @userId=" + uId;
-            if (contestId != 0)
-            {
-                query += (", @contestId=" + contestId);
-            }
+            string query = "EXEC [stp_SS_GetFollowedLooks] @userId=" + uId;
+            //if (contestId != 0)
+            //{
+            //    query += (", @contestId=" + contestId);
+            //}
 
             SqlConnection myConnection = new SqlConnection(db);
 
@@ -176,18 +176,7 @@ namespace ShopSenseDemo
                     cmd.CommandTimeout = 300000;
                     System.Data.SqlClient.SqlDataReader dr = cmd.ExecuteReader();
 
-                    while (dr.Read())
-                    {
-                        //string contestName = dr["Name"].ToString();
-                        Look look = new Look();
-                        look.id = long.Parse(dr["Id"].ToString());
-                        look.creator = new UserProfile();
-                        look.creator.name = dr["name"].ToString();
-                        look.creator.id = long.Parse(dr["UId"].ToString());
-                        look.creator.pic = dr["Pic"].ToString();
-                        look.contestName = dr["contestname"].ToString();
-                        looks.Add(look);
-                    }
+                    looks = Look.GetLooksFromSqlReader(dr);
                 }
             }
             finally
@@ -268,7 +257,7 @@ namespace ShopSenseDemo
                 userImg.ImageUrl = look.creator.pic;
                 userLink.Controls.Add(userImg);
 
-                userLink.Controls.Add(new Literal { Text = "<span style=\"color:#717171;\"> Made by: " + look.creator.name + "<br> for " + look.contestName + "</span>" });
+                userLink.Controls.Add(new Literal { Text = "<span style=\"color:#717171;\"> Made by: " + look.creator.name + "<br> for " + look.TagsFormatted() + "</span>" });
 
                 lookPanel.Controls.Add(userPanel);
                 LookContent.Controls.Add(lookPanel);
