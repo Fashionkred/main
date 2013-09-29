@@ -257,7 +257,8 @@ namespace ShopSenseDemo
                 userImg.ImageUrl = look.creator.pic;
                 userLink.Controls.Add(userImg);
 
-                userLink.Controls.Add(new Literal { Text = "<span style=\"color:#717171;\"> Made by: " + look.creator.name + "<br> for " + look.TagsFormatted() + "</span>" });
+                userLink.Controls.Add(new Literal { Text = "<span style=\"color:#717171;\"> Made by: " + look.creator.name + "<br> for " 
+                    + look.TagsFormatted() + " " + look.upVote + " loves, "+ look.restyleCount + " restyles</span>" });
 
                 lookPanel.Controls.Add(userPanel);
                 LookContent.Controls.Add(lookPanel);

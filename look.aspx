@@ -84,10 +84,13 @@
             
             
 			<div class="item-content">
-				<%--<asp:HyperLink ID="P1Brand" runat="server" CssClass="brandTitle OutBoundLink" Target="_blank" />--%>
+				<asp:HyperLink ID="P1Brand" runat="server" CssClass="brandTitle OutBoundLink" Target="_blank" />
 				<div style="color: #e21a2c;"><asp:HyperLink ID="P1Label" runat="server" CssClass="pdtTitle OutBoundLink" Target="_blank" /></div>
 			</div>
 			<div class="price-content">
+                <asp:Label ID="P1Cat" runat="server" CssClass="inline" />
+                <asp:Label ID="P1Color" runat="server" CssClass="inline" />
+                <asp:Label ID="P1Retailer" runat="server" CssClass="inline" />
 				<asp:Label ID="P1Price" runat="server" CssClass="inline" />
                 <asp:Label ID="P1SalePrice" runat="server" CssClass="inline hide" />
 			</div>
@@ -113,10 +116,13 @@
             </asp:Panel>
 
 			    <div class="item-content">
-				    <%--<asp:HyperLink ID="P2Brand" runat="server" CssClass="brandTitle OutBoundLink" Target="_blank" />--%>
+				    <asp:HyperLink ID="P2Brand" runat="server" CssClass="brandTitle OutBoundLink" Target="_blank" />
 				    <div style="color: #e21a2c;"><asp:HyperLink ID="P2Label" runat="server" CssClass="pdtTitle OutBoundLink" Target="_blank"/></div>
 			    </div>
 			    <div class="price-content">
+                    <asp:Label ID="P2Cat" runat="server" CssClass="inline" />
+                    <asp:Label ID="P2Color" runat="server" CssClass="inline" />
+                    <asp:Label ID="P2Retailer" runat="server" CssClass="inline" />
 				    <asp:Label ID="P2Price" runat="server" CssClass="inline"/>
                     <asp:Label ID="P2SalePrice" runat="server" CssClass="inline hide" />
 			    </div>
@@ -138,10 +144,13 @@
                 </asp:Panel>
 
 			    <div class="item-content">
-				    <%--<asp:HyperLink ID="P3Brand" runat="server" CssClass="brandTitle OutBoundLink" Target="_blank" />--%>
+				    <asp:HyperLink ID="P3Brand" runat="server" CssClass="brandTitle OutBoundLink" Target="_blank" />
 				    <div style="color: #e21a2c;"><asp:HyperLink ID="P3Label" runat="server" CssClass="pdtTitle OutBoundLink" Target="_blank"/></div>
 			    </div>
 			    <div class="price-content">
+                    <asp:Label ID="P3Cat" runat="server" CssClass="inline" />
+                    <asp:Label ID="P3Color" runat="server" CssClass="inline" />
+                    <asp:Label ID="P3Retailer" runat="server" CssClass="inline" />
 				    <asp:Label ID="P3Price" runat="server" CssClass="inline"/>
                     <asp:Label ID="P3SalePrice" runat="server" CssClass="inline hide" />
 			    </div>
@@ -155,8 +164,10 @@
   </asp:Panel>  
 
   <div>
+    <br />
     <strong>Title: </strong><asp:Label ID="LookTitle" runat="server" /> <strong>Tag: </strong><asp:Label ID="LookTags" runat="server" />
     <asp:HyperLink ID="ReStyled" runat="server" Style="color:#AB6666;font-weight:bold;" />
+    <string><asp:Label ID="LovesCount" runat="Server" />&nbsp;<asp:Label ID="StyleCount" runat="Server" />&nbsp;<asp:Label ID="ViewCount" runat="Server" /></string>
   </div>
   <div class="buttons-wrapper">
 		<asp:Panel ID="LeftButtonDisabled" runat="server" CssClass="left-button-disabled">

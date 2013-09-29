@@ -257,7 +257,7 @@ public partial class Outfit : BasePage
         //Set the product
         P1Image.ImageUrl = look.products[0].GetImageUrl();
 
-        //P1Brand.Text = look.products[0].GetBrandName();
+        P1Brand.Text = look.products[0].GetBrandName();
         P1Label.Text = look.products[0].GetName();
         if (string.IsNullOrEmpty(look.products[0].AffiliateUrl))
         {
@@ -270,6 +270,11 @@ public partial class Outfit : BasePage
 
         P1Love.Text = look.products[0].loves.ToString();
         P1BuyButton.NavigateUrl = look.products[0].AffiliateUrl + "&u1=" + look.creator.id ;
+
+        //Cat, color, retailer
+        P1Cat.Text = look.products[0].GetCategory();
+        P1Color.Text = look.products[0].GetColor();
+        P1Retailer.Text = look.products[0].retailer;
         
         //suppress price
         //P1Price.Text = string.Format("{0:c}", look.products[0].price);
@@ -281,7 +286,7 @@ public partial class Outfit : BasePage
         //}
 
         P2Image.ImageUrl = look.products[1].GetImageUrl();
-        //P2Brand.Text = look.products[1].GetBrandName();
+        P2Brand.Text = look.products[1].GetBrandName();
         P2Label.Text = look.products[1].GetName();
         if (string.IsNullOrEmpty(look.products[1].AffiliateUrl))
         {
@@ -294,7 +299,11 @@ public partial class Outfit : BasePage
 
         P2Love.Text = look.products[1].loves.ToString();
         P2BuyButton.NavigateUrl = look.products[1].AffiliateUrl + "&u1=" + look.creator.id;
-        
+
+        //Cat, color, retailer
+        P2Cat.Text = look.products[1].GetCategory();
+        P2Color.Text = look.products[1].GetColor();
+        P2Retailer.Text = look.products[1].retailer;
         //P2Price.Text = string.Format("{0:c}", look.products[1].price);
         //if (look.products[1].salePrice != 0)
         //{
@@ -316,7 +325,7 @@ public partial class Outfit : BasePage
 
             //set P3
             P3Image.ImageUrl = look.products[2].GetNormalImageUrl();
-            //P3Brand.Text = look.products[2].GetBrandName();
+            P3Brand.Text = look.products[2].GetBrandName();
             P3Label.Text = look.products[2].GetName();
             if (string.IsNullOrEmpty(look.products[2].AffiliateUrl))
             {
@@ -329,6 +338,11 @@ public partial class Outfit : BasePage
             P3Love.Text = look.products[2].loves.ToString();
             P3Id.Text = look.products[2].id.ToString();
             P3BuyButton.NavigateUrl = look.products[2].AffiliateUrl + "&u1=" + look.creator.id;
+
+            //Cat, color, retailer
+            P3Cat.Text = look.products[2].GetCategory();
+            P3Color.Text = look.products[2].GetColor();
+            P3Retailer.Text = look.products[2].retailer;
         }
         this.userId = user.id;
         System.Web.UI.WebControls.Image userImage = (System.Web.UI.WebControls.Image)this.Master.FindControl("UserImage");
@@ -364,6 +378,9 @@ public partial class Outfit : BasePage
         CreatorId.Text = look.creator.id.ToString();
         LookTitle.Text = look.title;
         LookTags.Text = look.TagsFormatted();
+        LovesCount.Text = look.upVote.ToString() + "loves";
+        StyleCount.Text = look.restyleCount.ToString() + "restyles";
+        ViewCount.Text = look.viewCount.ToString() + "views";
 
         if (look.originalLookId != 0)
         {
