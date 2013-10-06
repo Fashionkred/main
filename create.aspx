@@ -240,6 +240,7 @@
     <asp:label id="P1Cat" runat="server"  style="display: none;" />
     <asp:label id="P2Cat" runat="server" style="display: none;" />
     <asp:label id="P3Cat" runat="server"  style="display: none;" />
+    <asp:label id="CoverPdt" runat="server" style="display: none;" />
     <asp:label id="UserId" runat="server" style="display: none;" />
     <asp:Label ID="UserShare" runat="server" Style="display: none;" />
     <asp:Label ID="OriginalLook" runat="server" Style="display: none;" />

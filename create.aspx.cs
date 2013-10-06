@@ -108,6 +108,9 @@ public partial class create : BasePage
         UserId.Text = this.userId.ToString();
         UserShare.Text = this.user.IsPrivate ? "0" : "1";
 
+        //Set the cover product - TOO - right now the first product is always cover product
+        CoverPdt.Text = "0";
+
         //Get favorites for the specified categories
         Dictionary<string, IList<Product>> favorites = UserProfile.GetLovesByContest(userId, contestId, db);
         int position = 1;

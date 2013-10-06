@@ -206,25 +206,38 @@ function CantFinishLook() {
 }
 
 function createlook() {
-       
+
     var userid = $('#MainContent_UserId').text();
-    var pid1 = $('#MainContent_P1Id').text();
-    var pid2 = $('#MainContent_P2Id').text();
-    var pid3 = $('#MainContent_P3Id').text();
 
-    var p1color = $('#MainContent_P1Color').text();
-    var p2color = $('#MainContent_P2Color').text();
-    var p3color = $('#MainContent_P3Color').text();
+    var pids = new Array();
+    var pcolors = new Array();
+    var pcats = new Array();
 
-    var colormap = p1color + "%7C" + p2color + "%7C" + p3color;
-    var productmap = pid1 + "%7C" + pid2 + "%7C" + pid3;
-    //TODO: Add tag and title field in create look page
+    for (var i = 0; i < 3; i++) {
+        pids[i] = $('#MainContent_P' + (i+1) + 'Id').text();
+        pcolors[i] = $('#MainContent_P' + (i+1) + 'Color').text();
+        pcats[i] = $('#MainContent_P' + (i+1) + 'Cat').text();
+    }
+
+    var CoverPdt = $('#MainContent_CoverPdt').text();
+    var productmap= "";
+    for (i = 0; i < 3; i++) {
+        if (i > 0)
+            productmap += ("|");
+
+        productmap += (pids[i] + "," + pcolors[i] + "," + pcats[i] + ",");
+        if (CoverPdt == i)
+            productmap += 1;
+        else
+            productmap += 0;
+    }
+    
     var tags = $('#tags').val().split(',');
     var tagmap;
     if (tags.length > 0) {
         tagmap = tags[0] ;
-        for (var i = 1; i < tags.length; i++) {
-            tagmap += ("%7C" + tags[i]);
+        for (i = 1; i < tags.length; i++) {
+            tagmap += ("|" + tags[i]);
         }
     }
     
@@ -233,7 +246,8 @@ function createlook() {
 
     //Post look to DB
     $.ajax({
-        url: hostname + "/createlook.aspx?productmap=" + productmap + "&tagmap=" + tagmap +"&title=" + title + "&uid="  + userid + "&originalLookId=" + originalLookId + "&colormap=" + colormap + "&callback=?",
+        url: hostname + "/createlook.aspx?productmap=" + encodeURIComponent(productmap) + "&tagmap=" + encodeURIComponent(tagmap)
+         +"&title=" +encodeURIComponent(title) + "&uid="  + userid + "&originalLookId=" + originalLookId + "&callback=?",
         cache: false,
         dataType: 'jsonp',
         jsonpCallback: 'UpdateCreateLook',

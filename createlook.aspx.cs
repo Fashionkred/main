@@ -116,7 +116,12 @@ public partial class createlook : System.Web.UI.Page
 
             for (int i = 0; i < products.Count(); i++)
             {
-                this.productMap += ("<Product pId=\"" + products[i] + "\"/>");
+                string[] productParams = products[i].Split(',');
+                if (productParams.Count() != 4)
+                    return false;
+                //product params are - pid, colorid, categoryid and iscover (bool indicating cover product or not)
+                this.productMap += ("<Product pId=\"" + productParams[0] + "\" colorId=\"" + productParams[1]
+                                        + "\" catId=\"" + productParams[2] + "\" isCover=\"" + productParams[3] + "\"/>");
             }
             this.productMap += "</ProductList>";
 
@@ -138,7 +143,7 @@ public partial class createlook : System.Web.UI.Page
 
         if (this.Request.QueryString["title"] != null && this.Request.QueryString["title"] != "undefined")
         {
-            this.title = this.Request.QueryString["title"];
+            this.title = HttpUtility.UrlDecode(this.Request.QueryString["title"]);
         }
 
         if (!string.IsNullOrEmpty(this.Request.QueryString["originalLookId"]))
@@ -155,22 +160,22 @@ public partial class createlook : System.Web.UI.Page
             this.userId = long.Parse(this.Request.QueryString["uid"]);
         }
 
-        if (this.Request.QueryString["colormap"] != null)
-        {
-            string[] colors = HttpUtility.UrlDecode(Request.QueryString["colormap"]).Split('|');
-            this.colormap = "<ColorList>";
+        //if (this.Request.QueryString["colormap"] != null)
+        //{
+        //    string[] colors = HttpUtility.UrlDecode(Request.QueryString["colormap"]).Split('|');
+        //    this.colormap = "<ColorList>";
 
-            for (int i = 0; i < colors.Count(); i++ )
-            {
-                if (string.IsNullOrEmpty(colors[i]) || colors[i] == "Clear")
-                    continue;
-                else
-                {
-                    colormap += ("<Color pId=\"" + products[i] + "\" cId=\"" + colors[i] + "\" />");
-                }
-            }
-            this.colormap += "</ColorList>";
-        }
+        //    for (int i = 0; i < colors.Count(); i++ )
+        //    {
+        //        if (string.IsNullOrEmpty(colors[i]) || colors[i] == "Clear")
+        //            continue;
+        //        else
+        //        {
+        //            colormap += ("<Color pId=\"" + products[i] + "\" cId=\"" + colors[i] + "\" />");
+        //        }
+        //    }
+        //    this.colormap += "</ColorList>";
+        //}
 
         return true;
     }
@@ -201,14 +206,26 @@ public partial class createlook : System.Web.UI.Page
                 look = Look.GetLookFromSqlReader(dr);
 
                 msg.Look = look;
-                msg.LookDescription = "Outfit containing ";
+                msg.LookDescription = look.title;
+
+                foreach (Tag tag in msg.Look.tags)
+                {
+                    if (!tag.name.StartsWith("#"))
+                        msg.LookDescription += ("#" + tag.name);
+                    else
+                        msg.LookDescription += tag.name;
+
+                    msg.LookDescription += " ";
+                }
+
                 for (int i=0; i < msg.Look.products.Count ; i++)
                 {
-                    msg.LookDescription += (msg.Look.products[i].name);
+                    msg.LookDescription += "#" + (msg.Look.products[i].brandName);
                     if (i < msg.Look.products.Count - 1)
-                        msg.LookDescription += ", ";
+                        msg.LookDescription += " ";
                 }
-                msg.LookDescription += (" - Check out at http://fashionkred.com/look.aspx?lid=" + msg.Look.id + "&ref=" + this.userId);
+
+                
             }
         }
         finally

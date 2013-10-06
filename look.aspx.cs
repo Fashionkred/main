@@ -275,7 +275,7 @@ public partial class Outfit : BasePage
         P1Cat.Text = look.products[0].GetCategory();
         P1Color.Text = look.products[0].GetColor();
         P1Retailer.Text = look.products[0].retailer;
-        
+        P1Retailer.Text += look.products[0].isCover ? " Cover" : "";
         //suppress price
         //P1Price.Text = string.Format("{0:c}", look.products[0].price);
         //if (look.products[0].salePrice != 0)
@@ -304,6 +304,7 @@ public partial class Outfit : BasePage
         P2Cat.Text = look.products[1].GetCategory();
         P2Color.Text = look.products[1].GetColor();
         P2Retailer.Text = look.products[1].retailer;
+        P2Retailer.Text += look.products[1].isCover ? " Cover" : "";
         //P2Price.Text = string.Format("{0:c}", look.products[1].price);
         //if (look.products[1].salePrice != 0)
         //{
@@ -343,6 +344,7 @@ public partial class Outfit : BasePage
             P3Cat.Text = look.products[2].GetCategory();
             P3Color.Text = look.products[2].GetColor();
             P3Retailer.Text = look.products[2].retailer;
+            P3Retailer.Text += look.products[2].isCover ? " Cover" : "";
         }
         this.userId = user.id;
         System.Web.UI.WebControls.Image userImage = (System.Web.UI.WebControls.Image)this.Master.FindControl("UserImage");
