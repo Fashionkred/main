@@ -44,6 +44,7 @@ public partial class create : BasePage
         pdtImg.ToolTip = pdt.name;
         pdtImg.ID = "pdt-" + pdt.id.ToString();
         pdtlink.Controls.Add(pdtImg);
+        pdtImg.Attributes.Add("color", pdt.GetColor()); 
         productPanel.Controls.Add(pdtlink);
 
         newLi.Controls.Add(productPanel);

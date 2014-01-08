@@ -68,11 +68,11 @@ public partial class createlook : System.Web.UI.Page
         {
             string imageFilePath = Path.Combine(Server.MapPath("images/looks"), msg.Look.id + ".jpg");
                 
-            if (msg.Look.products.Count == 3)
+            if (msg.Look.products.Count >= 3)
             {
                 if (!File.Exists(imageFilePath))
                 {
-                    WebHelper.MergeThreeImages(msg.Look.products[0].GetImageUrl(), msg.Look.products[1].GetNormalImageUrl(), msg.Look.products[2].GetNormalImageUrl(), imageFilePath);
+                    WebHelper.CreateLookPanel(msg.Look, imageFilePath);
                 }
             }
             else

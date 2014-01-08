@@ -340,10 +340,14 @@ $('#buttons-create-next').on('click', function () {
 
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreatediv" + M;
+        var pColor = $(divID).find('img').attr("color");
         var pId = $(divID).find('img').attr("id");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P1Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P1Color').text(pColor);
+            }
         }
         else {
             $('#MainContent_P1Id').text("");
@@ -364,10 +368,14 @@ $('#buttons-create-prev').on('click', function () {
         //Find the div which contains current image
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreatediv" + M;
+        var pColor = $(divID).find('img').attr("color");
         var pId = $(divID).find('img').attr("id");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P1Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P1Color').text(pColor);
+            }
         }
         else {
             $('#MainContent_P1Id').text("");
@@ -386,10 +394,14 @@ $('#buttons-create-next-02').on('click', function () {
 
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreate2div" + L;
+        var pColor = $(divID).find('img').attr("color");
         var pId = $(divID).find('img').attr("id");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P2Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P2Color').text(pColor);
+            }
         }
         else {
             $('#MainContent_P2Id').text("");
@@ -410,10 +422,14 @@ $('#buttons-create-prev-02').on('click', function () {
 
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreate2div" + L;
+        var pColor = $(divID).find('img').attr("color");
         var pId = $(divID).find('img').attr("id");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P2Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P2Color').text(pColor);
+            }
         }
         else {
             $('#MainContent_P2Id').text("");
@@ -434,9 +450,13 @@ $('#buttons-create-next-03').on('click', function () {
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreate3div" + H;
         var pId = $(divID).find('img').attr("id");
+        var pColor = $(divID).find('img').attr("color");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P3Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P3Color').text(pColor);
+            }
         }
         else {
             $('#MainContent_P3Id').text("");
@@ -458,9 +478,13 @@ $('#buttons-create-prev-03').on('click', function () {
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreate3div" + H;
         var pId = $(divID).find('img').attr("id");
+        var pColor = $(divID).find('img').attr("color");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P3Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P3Color').text(pColor);
+            }
         }
         else {
             $('#MainContent_P3Id').text("");
@@ -484,9 +508,13 @@ function sliderselect(slider, position) {
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreatediv" + M;
         var pId = $(divID).find('img').attr("id");
+        var pColor = $(divID).find('img').attr("color");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P1Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P1Color').text(pColor);
+            }
         }
         M += 1;
 
@@ -505,9 +533,13 @@ function sliderselect(slider, position) {
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreate2div" + L;
         var pId = $(divID).find('img').attr("id");
+        var pColor = $(divID).find('img').attr("color");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P2Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P2Color').text(pColor);
+            }
         }
         L += 1;
 
@@ -524,9 +556,13 @@ function sliderselect(slider, position) {
         //Find the div which contains current image
         var divID = "#MainContent_sliderCreate3div" + H;
         var pId = $(divID).find('img').attr("id");
+        var pColor = $(divID).find('img').attr("color");
         if (pId != null) {
             pId = pId.substring(pId.indexOf("-") + 1);
             $('#MainContent_P3Id').text(pId);
+            if (pColor != null) {
+                $('#MainContent_P3Color').text(pColor);
+            }
         }
         H += 1;
 

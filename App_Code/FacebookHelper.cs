@@ -33,7 +33,7 @@ namespace ShopSenseDemo
             return url;
         }
 
-        public static UserProfile GetUser(string code, string referral, string db)
+        public static UserProfile GetUser(string code, string referral,string ipAddress, string userAgent, string db)
         {
             var client = new FacebookClient();
             client.AppId = appId;
@@ -60,6 +60,8 @@ namespace ShopSenseDemo
                 user.locale = result.locale;
                 user.sex = (result.gender == "female" ? Sex.Female : Sex.Male);
                 user.Referral = referral;
+                user.ipAddress = ipAddress;
+                user.userAgent = userAgent;
                 user.pic = "https://graph.facebook.com/" + user.facebookId + "/picture?width=50&height=50";
 
                 //extended perm
@@ -78,6 +80,8 @@ namespace ShopSenseDemo
                     }
                 }
 
+                //for new users - suggest users to follow
+                
                 user = UserProfile.SaveOrUpdateUser(user, db);
             }
             else

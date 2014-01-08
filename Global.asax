@@ -13,6 +13,10 @@
     {
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
 
+        ShopSenseDemo.CategoryTree catTree = new ShopSenseDemo.CategoryTree();
+        catTree.LoadCategoryTree(db);
+        HttpContext.Current.Session["CategoryTree"] = catTree;
+
         // create userprofile
         if (HttpContext.Current.Session!= null && HttpContext.Current.Session["user"] == null
             && this.Request.Cookies["__userid"] != null && this.Request.Cookies["__auth"] != null)
@@ -36,6 +40,18 @@
                         {
                             HttpContext.Current.Session["access_token"] = userProfile.accessToken;
                             HttpContext.Current.Session["user"] = userProfile;
+
+                            // create user cookie
+                            HttpCookie userid = new HttpCookie("__userid");
+                            userid.Value = userProfile.id.ToString();
+                            userid.Expires = DateTime.UtcNow.AddDays(14);
+                            Response.Cookies.Add(userid);
+
+                            // create authentication cookie
+                            HttpCookie auth = new HttpCookie("__auth");
+                            auth.Value = WebHelper.CreateAuthString(userProfile.id);
+                            auth.Expires = DateTime.UtcNow.AddDays(14);
+                            Response.Cookies.Add(auth);
                         }
                     }
                 }

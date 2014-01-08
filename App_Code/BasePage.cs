@@ -79,7 +79,9 @@ namespace ShopSenseDemo
                             {
                                 userReferral = this.Request.Cookies["__userReferralid"].Value;
                             }
-                            user = FacebookHelper.GetUser(Request.QueryString["code"], userReferral, db);
+                            string ipAddress = WebHelper.GetIpAddress(this.Request);
+                            string userAgent = this.Request.UserAgent.ToString();
+                            user = FacebookHelper.GetUser(Request.QueryString["code"], userReferral, ipAddress, userAgent, db);
                             this.Session["access_token"] = user.accessToken;
                             this.Session["user"] = user;
                             

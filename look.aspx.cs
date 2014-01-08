@@ -54,11 +54,12 @@ public partial class Outfit : BasePage
         {
             string imageFilePath = Path.Combine(Server.MapPath("images/looks"), look.id + ".jpg");
                 
-            if (look.products.Count == 3)
+            if (look.products.Count >= 3)
             {
                 if (!File.Exists(imageFilePath))
                 {
-                    WebHelper.MergeThreeImages(look.products[0].GetImageUrl(), look.products[1].GetNormalImageUrl(), look.products[2].GetNormalImageUrl(), imageFilePath);
+                    WebHelper.CreateLookPanel(look, imageFilePath);
+                    //WebHelper.MergeThreeImages(look.products[0].GetImageUrl(), look.products[1].GetNormalImageUrl(), look.products[2].GetNormalImageUrl(), imageFilePath);
                 }
 
                 image.Content = "http://fashionkred.com/images/looks/" + look.id + ".jpg";

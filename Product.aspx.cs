@@ -77,7 +77,7 @@ public partial class ProductPage : BasePage
         ProductImg.ImageUrl = product.GetImageUrl();
         ProductDesc.Text = product.description;
         Retailer.Text = "Buy at " + product.retailer;
-        Colors.Text = "<strong>Available Color: </strong>" + product.colorString;
+        //Colors.Text = "<strong>Available Color: </strong>" + product.colorString;
         Sizes.Text = "<strong>Available Size: </strong>" + product.sizeString;
 
         Price.Text = string.Format("{0:c}", product.price);

@@ -347,7 +347,7 @@ public partial class user : BasePage
                 if (!File.Exists(imageFilePath))
                     continue;
 
-                lookImg.ImageUrl = "http://fashionkred.com/images/looks/" + look.id + ".jpg";
+                lookImg.ImageUrl = "images/looks/"+look.id+".jpg" ;
                 lookImg.CssClass = "item";
 
                 lookLink.Controls.Add(lookImg);

@@ -41,6 +41,16 @@ public class WebHelper
         return (WebHelper.CreateAuthString(userId) == cookie);
     }
 
+    public static string GetIpAddress(HttpRequest request)
+    {
+        string strIpAddress = request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+        if (strIpAddress == null)
+            strIpAddress = request.ServerVariables["REMOTE_ADDR"];
+
+        return strIpAddress;
+    }
+
     public static Dictionary<string, string> DecodePayload(string payload)
     {
         //Remove the bad part of signed_request
@@ -351,5 +361,154 @@ public class WebHelper
         }
 
         return productPanel;
+    }
+
+    //Dominant hex color
+    public static System.Drawing.Color getDominantColor(Bitmap bmp)
+    {
+        //Used for tally
+        int r = 0;
+        int g = 0;
+        int b = 0;
+
+        int total = 0;
+
+        for (int x = 0; x < bmp.Width; x++)
+        {
+            for (int y = 0; y < bmp.Height; y++)
+            {
+                System.Drawing.Color clr = bmp.GetPixel(x, y);
+
+                r += clr.R;
+                g += clr.G;
+                b += clr.B;
+
+                total++;
+            }
+        }
+
+        //Calculate average
+        r /= total;
+        g /= total;
+        b /= total;
+
+        return System.Drawing.Color.FromArgb(r, g, b);
+    }
+
+    public static void CreateLookPanel(Look look, string imageFilePath)
+    {
+        List<System.Drawing.Image> lookImages = new List<System.Drawing.Image>();
+        List<System.Drawing.Image> swatchImages = new List<System.Drawing.Image>(); 
+        //int cornerRadius = 30;
+        
+        for(int i=0; i< look.products.Count(); i++)
+        {
+            string imageUrl = look.products[i].isCover ? look.products[i].GetImageUrl() : look.products[i].GetThumbnailUrl();
+            var request = WebRequest.Create(imageUrl);
+        
+            using (var response = request.GetResponse())
+            using (var stream = response.GetResponseStream())
+            {
+                lookImages.Add(System.Drawing.Image.FromStream(stream));
+            }
+
+            if (!string.IsNullOrEmpty(look.products[i].swatchUrl))
+            {
+                var sRequest = WebRequest.Create(look.products[i].swatchUrl);
+
+                using (var response = sRequest.GetResponse())
+                using (var stream = response.GetResponseStream())
+                {
+                    swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                }
+            }
+            else
+            {
+                //Bitmap bit = new Bitmap(1,1);
+                //using (Graphics g = Graphics.FromImage(bit))
+                //{
+                //    Brush brush = GetColorBrush(look.products[i].GetColor());
+
+                //    g.FillRectangle(brush, 0, 0, bit.Width, bit.Height);
+                //}
+
+                //swatchImages.Add(bit);
+                var sRequest = WebRequest.Create(look.products[i].GetThumbnailUrl());
+
+                using (var response = sRequest.GetResponse())
+                using (var stream = response.GetResponseStream())
+                {
+                    swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                }
+            }
+        }
+
+        Bitmap bitmap = new Bitmap(lookImages[0].Width + lookImages[1].Width + 32, Math.Max(lookImages[0].Height, lookImages[1].Height + lookImages[2].Height) + 20);
+
+        //bitmap.MakeTransparent();
+        using (Graphics g = Graphics.FromImage(bitmap))
+        {
+            g.FillRectangle(Brushes.White, 0, 0, bitmap.Width, bitmap.Height);
+            //bitmap = new Bitmap(AppendBorder(bitmap, 8));
+            //bitmap = new Bitmap(RoundCorners(bitmap, cornerRadius));
+
+            //Add the color bar
+            int colorBarHeight = (bitmap.Height - 5*look.products.Count()) / look.products.Count();
+            int colorBarWidth = 12;
+            for (int i = 0; i < swatchImages.Count(); i++)
+            {
+                Bitmap bits = new Bitmap(swatchImages[i]);
+                SolidBrush brush = new SolidBrush(getDominantColor(bits));
+                g.FillRectangle(brush, 4, 5+ i * (colorBarHeight + 5), colorBarWidth, colorBarHeight);
+            }
+            
+
+        }
+        using (Graphics g = Graphics.FromImage(bitmap))
+        {
+            g.DrawImage(lookImages[0], 16, 18);
+            g.DrawImage(lookImages[1], lookImages[0].Width + 24, 16);
+            g.DrawImage(lookImages[2], lookImages[0].Width + 24, lookImages[1].Height + 24);
+        }
+
+        bitmap.Save(imageFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+    }
+
+    public static Brush GetColorBrush(string colorId)
+    {
+        switch (colorId)
+        {
+            case "Brown":
+                return Brushes.Brown;
+            case "Orange":
+                return Brushes.Orange;
+            case "Yellow":
+                return Brushes.Yellow;
+            case "Red":
+                return Brushes.Red;
+            case "Purple":
+                return Brushes.Purple;
+            case "Blue":
+                return Brushes.Blue;
+            case "Green":
+                return Brushes.Green;
+            case "Gray":
+                return Brushes.Gray;
+            case "White":
+                return Brushes.White;
+            case "Black":
+                return Brushes.Black;
+            case "Pink":
+                return Brushes.Pink;
+            case "Gold":
+                return Brushes.Gold;
+            case "Silver":
+                return Brushes.Silver;
+            case "Beige":
+                return Brushes.Beige;
+            default:
+                return Brushes.AntiqueWhite;
+        }
     }
 }
