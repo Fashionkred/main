@@ -14,8 +14,8 @@
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
 
         ShopSenseDemo.CategoryTree catTree = new ShopSenseDemo.CategoryTree();
-        catTree.LoadCategoryTree(db);
-        HttpContext.Current.Session["CategoryTree"] = catTree;
+        //catTree.LoadCategoryTree(db);
+        //HttpContext.Current.Session["CategoryTree"] = catTree;
 
         // create userprofile
         if (HttpContext.Current.Session!= null && HttpContext.Current.Session["user"] == null

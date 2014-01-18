@@ -253,7 +253,7 @@ public partial class user : BasePage
                             Look look = new Look();
                             look.id = long.Parse(dr["Id"].ToString());
                             look.products = new List<Product>();
-                            look.Loved = int.Parse(dr["love"].ToString());
+                            look.isLoved = int.Parse(dr["love"].ToString()) == 1 ? true : false;
                             if (results.ContainsKey(contestName))
                             {
                                 results[contestName].Add(look);
@@ -370,7 +370,7 @@ public partial class user : BasePage
                 lovePanel.Controls.Add(loveLabel);
                 sharePanel.Controls.Add(lovePanel);
 
-                if (look.Loved == 1)
+                if (look.isLoved)
                 {
                     lovePanel.CssClass += " loved";
                     loveLabel.Text = "Loved";

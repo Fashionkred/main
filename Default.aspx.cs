@@ -151,40 +151,8 @@ namespace ShopSenseDemo
             UserId.Text = this.user.id.ToString();
 
             //Let's get the sets and display them
-            DisplaySets(GetLooks(db, user.id, contestId));
+            DisplaySets(Look.GetHPLooks(db, user.id, contestId));
 
-        }
-
-        public List<Look> GetLooks(string db,  long uId, long contestId)
-        {
-            List<Look> looks = new List<Look>();
-
-            string query = "EXEC [stp_SS_GetFollowedLooks] @userId=" + uId;
-            //if (contestId != 0)
-            //{
-            //    query += (", @contestId=" + contestId);
-            //}
-
-            SqlConnection myConnection = new SqlConnection(db);
-
-            try
-            {
-                myConnection.Open();
-                using (SqlDataAdapter adp = new SqlDataAdapter(query, myConnection))
-                {
-                    SqlCommand cmd = adp.SelectCommand;
-                    cmd.CommandTimeout = 300000;
-                    System.Data.SqlClient.SqlDataReader dr = cmd.ExecuteReader();
-
-                    looks = Look.GetLooksFromSqlReader(dr);
-                }
-            }
-            finally
-            {
-                myConnection.Close();
-            }
-
-            return looks;
         }
 
         public void DisplaySets(List<Look> results)

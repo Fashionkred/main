@@ -397,30 +397,31 @@ public partial class Outfit : BasePage
             SubscribePanel.CssClass += " following";
             Subscribe.Text = "Following";
         }
-       
+
+        if (look.products[0].inCloset)
+        {
+            P1LoveButton.CssClass += "-red";
+            P1LoveImg.ImageUrl = "images/heart_filled.jpg";
+        }
+
+        if (look.products[1].inCloset)
+        {
+            P2LoveButton.CssClass += "-red";
+            P2LoveImg.ImageUrl = "images/heart_filled.jpg";
+        }
+
+        if (look.products[2].inCloset)
+        {
+            P3LoveButton.CssClass += "-red";
+            P3LoveImg.ImageUrl = "images/heart_filled.jpg";
+        }
         //if user have more than one look - pull favorites
         if (user.points > 0)
         {
             bool P1love, P2love, P3love;
             IList<ShopSenseDemo.Product> loves = UserProfile.GetLovesByUserId(user.id, look, this.retailerId, db, out P1love, out P2love, out P3love);
 
-            if (P1love)
-            {
-                P1LoveButton.CssClass += "-red";
-                P1LoveImg.ImageUrl = "images/heart_filled.jpg";
-            }
-
-            if (P2love)
-            {
-                P2LoveButton.CssClass += "-red";
-                P2LoveImg.ImageUrl = "images/heart_filled.jpg";
-            }
-
-            if (P3love)
-            {
-                P3LoveButton.CssClass += "-red";
-                P3LoveImg.ImageUrl = "images/heart_filled.jpg";
-            }
+            
 
             foreach (ShopSenseDemo.Product love in loves)
             {
