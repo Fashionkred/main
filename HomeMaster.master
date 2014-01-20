@@ -1,0 +1,52 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="HomeMaster.master.cs" Inherits="HomeMaster" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# fashionkred: http://ogp.me/ns/fb/fashionkred#">
+    <title>FashionKred</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="description" content="Fashionkred is an online pinboard of looks created by stylists and fashionistas for different occassions">
+	<meta name="keywords" content="shopping, shop, woman, women, accessoaries, shoes, clothes, sales, sale">
+	<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport" />
+    <meta name="p:domain_verify" content="e1b70f5a24b2e306a1908719df5737f3"/>
+    <link rel="icon" type="image/jpeg" href="images/favicon.png" />
+    <link href="~/Styles/Site.css" rel="stylesheet" type="text/css" />
+    
+     <!-- CSS Global Compulsory-->
+    <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="Styles/style.css">
+    <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap-responsive.min.css">
+	<% if (ConfigurationManager.AppSettings["Environment"] == "Production")
+       { %>
+    <script src="/Scripts/jquery.fashionkred.js" type="text/javascript"></script>
+    <%--<script src="/Scripts/jquery.masonry.min.js" type="text/javascript"></script>--%>
+    <% } %>
+    <% else
+        { %>
+    <script src="Scripts/jquery.fashionkred.js" type="text/javascript"></script>
+    <!--<script src="/FashionKred/Scripts/jquery.masonry.min.js" type="text/javascript"></script>-->
+    <% } %>
+    
+	<script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+
+    <asp:ContentPlaceHolder id="HeadContent" runat="server">
+    </asp:ContentPlaceHolder>
+        <asp:ContentPlaceHolder runat="server" ID="head">
+        
+        <meta property="og:site_name" content="FashionKred"/>
+        <meta property="fb:admins" content="424243"/>
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+ <form id="Form1" runat="server">
+  <div id="fb-root"></div>
+    <div>
+        <asp:ContentPlaceHolder id="MainContent" runat="server">
+        
+        </asp:ContentPlaceHolder>
+    </div>
+    </form>
+</body>
+</html>

@@ -207,273 +207,29 @@ public partial class Outfit : BasePage
         if (look.creator.id == user.id)
             isCreatorView = true;
 
-        if (isCreatorView || isVoted)
-        {
-            UserImage.Visible = false;
-            SubscribePanel.Visible = false;
-            BackButton.Visible = true;
-            //CreateLook.Visible = false;
-            //ShareButton.Visible = true;
-            LeftButton.Visible = false;
-            RightButton.Visible = false;
-            LeftButtonDisabled.Visible = true;
-            RightButtonDisabled.Visible = true;
-            VotePanel.Visible = true;
-            VoteMsg.Text = (look.upVote + look.downVote).ToString() + " people voted so far";
+        imgLookUser.ImageUrl = look.creator.pic;
+        lblLookUserName.Text = look.creator.name;
+        lblLookTitle.Text = look.title;
+        lblLoveCount.Text = look.upVote + " Love";
+        lblRestyleCount.Text = look.restyleCount + " Restyle";
 
-            double upVote, downVote;
-            Label leftVote = new Label();
-            LeftTextButtonDisabled.Controls.Add(leftVote);
-            Label rightVote = new Label();
-            RightTextButtonDisabled.Controls.Add(rightVote);
+        //Bind Look//
+        dlSingleLook.DataSource = look.products;
+        dlSingleLook.DataBind();
 
-            if (look.upVote + look.downVote == 0)
-            {
-                leftVote.Text = "0% VOTED MATCH";
-                rightVote.Text = "0% VOTED NO MATCH";
-            }
-            else
-            {
-                upVote = Math.Ceiling((double)(look.upVote * 100 / (look.upVote + look.downVote)));
-                downVote = Math.Ceiling((double)(look.downVote * 100 / (look.upVote + look.downVote)));
-                leftVote.Text = upVote.ToString() + "% VOTED MATCH";
-                rightVote.Text = downVote.ToString() + "% VOTED NO MATCH";
-            }
-            //Set the creator name to back to voting
-            CreatorName.Text = "Back to voting";
-        }
-        else
-        {
-            //Set creator tags
-            CreatorImage.ImageUrl = look.creator.pic;
-            CreatorName.Text = "Made by: " + look.creator.name;
-            CreatorName.NavigateUrl = "user.aspx?uid=" + look.creator.id;
-        }
-        
-        //anonymous view show the dialogue
-        if (user.id == 0)
-        {
-            Unsigned.Text = "1";
-        }
-        //Set the product
-        P1Image.ImageUrl = look.products[0].GetImageUrl();
-
-        P1Brand.Text = look.products[0].GetBrandName();
-        P1Label.Text = look.products[0].GetName();
-        if (string.IsNullOrEmpty(look.products[0].AffiliateUrl))
-        {
-            P1Title.NavigateUrl = P1Label.NavigateUrl = look.products[0].url;
-        }
-        else
-        {
-            P1Title.NavigateUrl = P1Label.NavigateUrl = look.products[0].AffiliateUrl + "&u1=" + look.creator.id;
-        }
-
-        P1Love.Text = look.products[0].loves.ToString();
-        P1BuyButton.NavigateUrl = look.products[0].AffiliateUrl + "&u1=" + look.creator.id ;
-
-        //Cat, color, retailer
-        P1Cat.Text = look.products[0].GetCategory();
-        P1Color.Text = look.products[0].GetColor();
-        P1Retailer.Text = look.products[0].retailer;
-        P1Retailer.Text += look.products[0].isCover ? " Cover" : "";
-        //suppress price
-        //P1Price.Text = string.Format("{0:c}", look.products[0].price);
-        //if (look.products[0].salePrice != 0)
-        //{
-        //    P1Price.CssClass += " strike-through";
-        //    P1SalePrice.Text = string.Format("{0:c}", look.products[0].salePrice);
-        //    P1SalePrice.CssClass += " show";
-        //}
-
-        P2Image.ImageUrl = look.products[1].GetImageUrl();
-        P2Brand.Text = look.products[1].GetBrandName();
-        P2Label.Text = look.products[1].GetName();
-        if (string.IsNullOrEmpty(look.products[1].AffiliateUrl))
-        {
-            P2Title.NavigateUrl = P2Label.NavigateUrl = look.products[1].url;
-        }
-        else
-        {
-            P2Title.NavigateUrl = P2Label.NavigateUrl = look.products[1].AffiliateUrl + "&u1=" + look.creator.id;
-        }
-
-        P2Love.Text = look.products[1].loves.ToString();
-        P2BuyButton.NavigateUrl = look.products[1].AffiliateUrl + "&u1=" + look.creator.id;
-
-        //Cat, color, retailer
-        P2Cat.Text = look.products[1].GetCategory();
-        P2Color.Text = look.products[1].GetColor();
-        P2Retailer.Text = look.products[1].retailer;
-        P2Retailer.Text += look.products[1].isCover ? " Cover" : "";
-        //P2Price.Text = string.Format("{0:c}", look.products[1].price);
-        //if (look.products[1].salePrice != 0)
-        //{
-        //    P2Price.CssClass += " strike-through";
-        //    P2SalePrice.Text = string.Format("{0:c}", look.products[1].salePrice);
-        //    P2SalePrice.CssClass += " show";
-        //}
-        if (look.products.Count == 3)
-        {
-            //Change the classes
-            Left.CssClass = "left-item-wrapper-more";
-            gallery.CssClass = "gallery-3-items";
-            RightPanel.CssClass = "right-content-parts-wrapper";
-            RightUpper.CssClass = "";
-            RightLower.Visible = true;
-            P2ImageDiv.CssClass = "product-small-image";
-            Plus.CssClass = "plus-content-3items";
-            P2Image.ImageUrl = look.products[1].GetNormalImageUrl();
-
-            //set P3
-            P3Image.ImageUrl = look.products[2].GetNormalImageUrl();
-            P3Brand.Text = look.products[2].GetBrandName();
-            P3Label.Text = look.products[2].GetName();
-            if (string.IsNullOrEmpty(look.products[2].AffiliateUrl))
-            {
-                P3Title.NavigateUrl = P3Label.NavigateUrl = look.products[2].url;
-            }
-            else
-            {
-                P3Title.NavigateUrl = look.products[2].AffiliateUrl + "&u1=" + look.creator.id;
-            }
-            P3Love.Text = look.products[2].loves.ToString();
-            P3Id.Text = look.products[2].id.ToString();
-            P3BuyButton.NavigateUrl = look.products[2].AffiliateUrl + "&u1=" + look.creator.id;
-
-            //Cat, color, retailer
-            P3Cat.Text = look.products[2].GetCategory();
-            P3Color.Text = look.products[2].GetColor();
-            P3Retailer.Text = look.products[2].retailer;
-            P3Retailer.Text += look.products[2].isCover ? " Cover" : "";
-        }
-        this.userId = user.id;
-        System.Web.UI.WebControls.Image userImage = (System.Web.UI.WebControls.Image)this.Master.FindControl("UserImage");
-        HyperLink  userName = (HyperLink)this.Master.FindControl("UserName");
-        Label userPoints = (Label)this.Master.FindControl("UserPoints");
-        HyperLink loginLink = (HyperLink)this.Master.FindControl("LogInLink");
-        Panel dropDown = (Panel)this.Master.FindControl("DropDown"); 
-        if (this.userId > 0)
-        {
-            userImage.ImageUrl = user.pic;
-            userName.Text = user.name;
-            userName.NavigateUrl = "user.aspx?uid=" + user.id;
-            userPoints.Text = user.points.ToString() + " votes";
-        }
-        else
-        {
-            userImage.Visible = false;
-            userName.Visible = false;
-            userPoints.Visible = false;
-            dropDown.Visible = false;
-            loginLink.Visible = true;
-            loginLink.NavigateUrl = this.Request.RawUrl.Contains('?') ? this.Request.RawUrl + "&login=1" : this.Request.RawUrl + "?login=1";
-        }
-        
-        //Set the metadata
-        LookId.Text = look.id.ToString();
-        P1Id.Text = look.products[0].id.ToString();
-        P2Id.Text = look.products[1].id.ToString();
-        UpVote.Text = look.upVote.ToString();
-        DownVote.Text = look.downVote.ToString();
-        UserId.Text = this.userId.ToString();
-        UserShare.Text = this.user.IsPrivate ? "0" : "1";
-        CreatorId.Text = look.creator.id.ToString();
-        LookTitle.Text = look.title;
-        LookTags.Text = look.TagsFormatted();
-        LovesCount.Text = look.upVote.ToString() + "loves";
-        StyleCount.Text = look.restyleCount.ToString() + "restyles";
-        ViewCount.Text = look.viewCount.ToString() + "views";
-
-        if (look.originalLookId != 0)
-        {
-            ReStyled.Text = "Restyled from this look";
-            ReStyled.NavigateUrl = "look.aspx?lid=" + look.originalLookId;
-        }
-
-        //Set the following class
-        if (UserProfile.IsFollower(look.creator.id, this.userId, db))
-        {
-            SubscribePanel.CssClass += " following";
-            Subscribe.Text = "Following";
-        }
-
-        if (look.products[0].inCloset)
-        {
-            P1LoveButton.CssClass += "-red";
-            P1LoveImg.ImageUrl = "images/heart_filled.jpg";
-        }
-
-        if (look.products[1].inCloset)
-        {
-            P2LoveButton.CssClass += "-red";
-            P2LoveImg.ImageUrl = "images/heart_filled.jpg";
-        }
-
-        if (look.products[2].inCloset)
-        {
-            P3LoveButton.CssClass += "-red";
-            P3LoveImg.ImageUrl = "images/heart_filled.jpg";
-        }
-        //if user have more than one look - pull favorites
-        if (user.points > 0)
-        {
-            bool P1love, P2love, P3love;
-            IList<ShopSenseDemo.Product> loves = UserProfile.GetLovesByUserId(user.id, look, this.retailerId, db, out P1love, out P2love, out P3love);
-
-            
-
-            foreach (ShopSenseDemo.Product love in loves)
-            {
-                Panel panel = new Panel();
-                panel.CssClass = "fav-image";
-
-                ProductHyperLink link = new ProductHyperLink(love);
-                System.Web.UI.WebControls.Image fav = new System.Web.UI.WebControls.Image();
-                link.Controls.Add(fav);
-
-                fav.ImageUrl = love.GetThumbnailUrl();
-                fav.AlternateText = love.name;
-
-                panel.Controls.Add(link);
-
-                Favorites.Controls.Add(panel);
-            }
-
-            if (loves.Count < 7)
-            {
-                for (int i = 0; i < 7 - loves.Count; i++)
-                {
-                    Panel panel = new Panel();
-                    panel.CssClass = "fav-image-standart";
-
-                    Favorites.Controls.Add(panel);
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 7; i++)
-            {
-                Panel panel = new Panel();
-                panel.CssClass = "fav-image-standart";
-
-                Favorites.Controls.Add(panel);
-            }
-        }
+        //Bind Tags//
+        dlTags.DataSource = look.tags;
+        dlTags.DataBind();
     }
 
-    protected void LoveIt_Click(object sender, EventArgs e)
+    protected void dlSingleLook_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
-        //Save the look
+        if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+        {
+            var product = (Product)e.Item.DataItem;
+            System.Web.UI.WebControls.Image imageLook = e.Item.FindControl("imgLook") as System.Web.UI.WebControls.Image;
+            imageLook.ImageUrl = product.GetImageUrl();        
+        }
 
-        //Bring another look if <10 otherwise prompt to invite friend
-    }
-
-    protected void Meh_Click(object sender, EventArgs e)
-    {
-        //Save the look
-
-        //Bring another look if <10 otherwise prompt to invite friend
     }
 }
