@@ -9,6 +9,8 @@ using ShopSenseDemo;
 using System.Web.UI.HtmlControls;
 using System.IO;
 using System.Net;
+using System.Web.Services;
+using System.Data;
 
 public partial class Outfit : BasePage
 {
@@ -17,7 +19,14 @@ public partial class Outfit : BasePage
     private Look look { get; set; }
     private int contestId;
     private long retailerId;
-    
+
+
+    //New code//
+
+    private string categoryId;
+    private string brandId;
+    private string colorid;
+
     private long userId { get; set; }
 
     public void SetOGTags()
@@ -53,7 +62,7 @@ public partial class Outfit : BasePage
         try
         {
             string imageFilePath = Path.Combine(Server.MapPath("images/looks"), look.id + ".jpg");
-                
+
             if (look.products.Count >= 3)
             {
                 if (!File.Exists(imageFilePath))
@@ -82,16 +91,13 @@ public partial class Outfit : BasePage
             Master.FindControl("head").Controls.Add(image);
         }
 
-        //HtmlMeta image2 = new HtmlMeta();
-        //image2.Attributes.Add("property", "og:image");
-        //image2.Content = look.products[1].GetImageUrl();
-        //Master.FindControl("head").Controls.Add(image2);
+        
 
         HtmlMeta desc = new HtmlMeta();
         desc.Attributes.Add("property", "og:description");
         if (look.products.Count == 3)
         {
-            desc.Content = "Outfit containing " + look.products[0].name + ", " + look.products[1].name + " and " +look.products[2].name;
+            desc.Content = "Outfit containing " + look.products[0].name + ", " + look.products[1].name + " and " + look.products[2].name;
         }
         else
         {
@@ -105,7 +111,7 @@ public partial class Outfit : BasePage
         Master.FindControl("head").Controls.Add(appId);
     }
 
-    
+
     protected void Page_Load(object sender, EventArgs e)
     {
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
@@ -143,7 +149,7 @@ public partial class Outfit : BasePage
             this.contestId = (int)this.Session["contest"];
         }
         this.retailerId = long.Parse(ConfigurationManager.AppSettings["Retailer"]);
-       
+
         look = new Look();
         //set the user
         if (this.Session["user"] != null)
@@ -163,7 +169,7 @@ public partial class Outfit : BasePage
         if (this.Session["lid"] != null)
         {
             look.id = long.Parse(this.Session["lid"].ToString());
-            look = Look.GetLookById(look.id, this.user.id, out isVoted, db);
+            look = Look.GetLookById(look.id, this.user.id, db);
 
             //clear the session
             this.Session["lid"] = null;
@@ -172,12 +178,12 @@ public partial class Outfit : BasePage
         else if (Request.QueryString["lid"] != null)
         {
             look.id = long.Parse(Request.QueryString["lid"]);
-            look = Look.GetLookById(look.id,this.user.id, out isVoted, db);
+            look = Look.GetLookById(look.id, this.user.id, db);
         }
 
         else
         {
-            look = Look.GetRandomLook(this.contestId,this.user.id, db);
+            look = Look.GetRandomLook(this.contestId, this.user.id, db);
         }
 
         //Make sure we have a look or at least 2 products in the look
@@ -228,8 +234,32 @@ public partial class Outfit : BasePage
         {
             var product = (Product)e.Item.DataItem;
             System.Web.UI.WebControls.Image imageLook = e.Item.FindControl("imgLook") as System.Web.UI.WebControls.Image;
-            imageLook.ImageUrl = product.GetImageUrl();        
+
+            //New Code//
+
+            categoryId = product.GetCategory();
+
+            colorid = product.GetColor();
+
+
+
+
+
+            imageLook.ImageUrl = product.GetImageUrl();
         }
 
     }
+
+    
+
+    [WebMethod]
+    public static Array BindSimilarItems(string categoryId, string colorId, long brandId, long retailerId, string db)
+    {
+
+        Dictionary<string, List<Product>> similarProducts = Product.GetSimilarProducts(categoryId, colorId, brandId, retailerId, db);
+
+        return similarProducts.ToArray();
+        
+    }
+
 }
