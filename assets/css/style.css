@@ -2957,7 +2957,6 @@ i.style-switcher-btn-option {
 
     .view1 span {
         color: #9f9f9f;
-       
     }
 
     .view1 em {
@@ -3493,5 +3492,13 @@ i.style-switcher-btn-option {
 }
 
 .hidetitle {
-    display:none !important;
+    display: none !important;
 }
+
+.Restyle-new {
+    color: #878787;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 13px;
+    line-height: 14px !important;
+}
+

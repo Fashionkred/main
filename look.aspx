@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="look.aspx.cs" Inherits="Outfit"
-    Debug="true" MasterPageFile="~/HomeMaster.master" %>
+    Debug="true" MasterPageFile="~/HomeMaster.master" ClientIDMode="Static" %>
 
 <asp:Content ID="HeaderContent" runat="server" ContentPlaceHolderID="HeadContent">
     <!-- CSS Global Compulsory-->
@@ -41,7 +41,7 @@
             var qEdt = GetQueryStringParams('edt');
             // alert(qEdt);
 
-            debugger;
+            
             if (qEdt == 'yes') {
 
                 var Tid = setInterval(function () { OpenNextPage(2, Tid) }, 100);
@@ -56,8 +56,9 @@
             }
 
             $("#imgback").click(function () {
+              
                 var qStr = GetQueryStringParams('sp');
-                window.location.href = "index.html?sp=" + qStr;
+                window.location.href = "default.aspx?sp=" + qStr;
             });
             $('#arrow').click(function () {
                 //alert('');
@@ -93,14 +94,14 @@
 
 
             console.log($('#divA' + obj).height());
-            debugger;
-           // $('.DisplayImagesfimilar').css('display', 'none !important');
+           
+            // $('.DisplayImagesfimilar').css('display', 'none !important');
             $('.DisplayImages').css('display', 'none');
 
             $('.price').addClass('hide');
             $('.border-dotted1').css('display', 'none');
 
-           
+
             $('#ImgA' + obj + ',#ImgF' + obj + ',#Imgp' + obj).css('display', 'block');
             $('.view-tenth').removeClass('test').css('border', '').css('margin-right', '');
             $('.view-tenth').addClass('view1');
@@ -128,13 +129,16 @@
             console.log($height);
             //$('.test').style('margin-right','15px','important');
 
+            //alert($height - 10);
 
             $('.test').attr("style", "margin-right: 15px !important;padding-top:12px;  margin-top:-14px !important; border:dashed #C2CBD3 2px; min-height:" + $height + "px!important;");
 
 
-            //$('#carousel').css('padding-top', '15px');
-            var liHeight = $('#divA' + obj).height() - 10;
-            $('#carousel').find('li:not(.test)').each(function () { $(this).attr("style", "min-height:" + liHeight + "px!important;") })
+            $('#carousel').css('padding-top', '15px');
+            //var liHeight = $('#divA' + obj).height() - 10;
+            var liHeight = $('#divA' + obj).height();
+            //alert(liHeight);
+            // $('#carousel').find('li:not(.test)').each(function () { $(this).attr("style", "min-height:" + liHeight + "px!important;") })
 
             //$('.test').attr('style', 'margin-right: 15px !important;border:dashed #C2CBD3 2px');
 
@@ -152,8 +156,8 @@
             $('.test img').css('margin-top', '0px');
 
 
-           
-               
+
+
 
             return false;
         }
@@ -166,7 +170,7 @@
             //alert('similar');
 
 
-            debugger;
+            
             var dd = $("#carousel2").attr("style");
             dd = dd.replace("max-height: 222px;", "");
             $("#carousel2").attr("style", dd);
@@ -178,7 +182,7 @@
             console.log($('#divA' + obj).height());
 
             console.log($('#divB' + obj).height());
-            //debugger;
+            //
             $('.DisplayImages1').css('display', 'none');
 
 
@@ -207,10 +211,10 @@
             $('#divB' + obj).find('.price').removeClass('hide');
             $('#divB' + obj).find('.hidedata').removeClass('hide');
             $('#divB' + obj).find('.hidedata1').removeClass('hidetitle');
-            
-            
 
-            
+
+
+
 
             // $('#divB' + obj).find('.border-dotted1').css('display', 'block');
             var $height = $('#divA' + obj).height();
@@ -279,7 +283,7 @@
         }
 
         function OpenNextPagesimilar(obj) {
-            //debugger;
+            
             //alert('asd');
             var j = jQuery.noConflict();
 
@@ -295,7 +299,40 @@
             createCookie("imgp", imgp, 1);
             createCookie("imgpp", imgpp, 1);
 
-            window.location.href = "edit-look.html";
+
+
+            var lookHtml = '';
+            var lookHtmlLiId = '';
+            var lookHtmlLiClass = '';
+            var count = carousel.childNodes.length;
+            for (i = 0; i <= 0 ; i++) {
+                //var lookHtmlli = '<li id="divA398649051" class="view view-tenth view1" style="width: 29.9688%; max-width: 178px; max-height: 273px; min-height: 0px; margin-top: 0px; margin-right: 0px;">';
+
+                //eraseCookie("editcookli");
+                //createCookie("editcookli", lookHtml, 1);
+
+
+                lookHtmlLiId += carousel.children[0].id + "|";
+                lookHtmlLiClass += carousel.children[0].classList + "|";
+
+                eraseCookie("editcookliid");
+                createCookie("editcookliid", lookHtmlLiId, 1);
+
+                eraseCookie("editcookliClass");
+                createCookie("editcookliClass", lookHtmlLiClass, 1);
+
+
+                //alert(carousel.children[0]);
+                lookHtml += carousel.children[0].innerHTML;
+                //lookHtml+='<a href="javascript:void(0)" onclick="OnBackClick();"><div class="img-bg"><img id="imgLook" src="http://resources.shopstyle.com/xim/96/58/9658d280ef7be888a68c94a4438ab38c.jpg"></div><div style="display: none;" class="hide_txt"><span>Cachet One Shoulder Pleated &amp; Embellished Gown</span> <span>Cachet</span><p>Bobeau Ivory</p><em>Nordstrom</em><p class="price hide">188.00</p></div><div style="display: none;" class="border-dotted1 hide"></div></a><input style="display: none;" class="DisplayImages" id="ImgA398649051" src="Images/AddtoCloset1.PNG" type="image"><a href="javascript:void(0);" onclick="OnBackClick();"><input style="display: none;" onclick="return false;" id="ImgF398649051" class="DisplayImages" src="assets/images/findsimitems.PNG" type="image"></a>';
+               // alert(lookHtml);
+                //lookHtml += "</li>";
+                //alert(lookHtml);
+            }
+
+            eraseCookie("editcook1");
+            createCookie("editcook1", lookHtml, 1);
+            window.location.href = "createlook.aspx";
         }
 
         ////////
@@ -314,6 +351,20 @@
             document.cookie = escape(name) + "=" + escape(value) + expires + "; path=/";
         }
 
+
+        function createCookieEdit(name, value, days) {
+            var expires;
+
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "| expires=" + date.toGMTString();
+            } else {
+                expires = "";
+            }
+            document.cookie = escape(name) + "=" + escape(value) + expires + "| path=/";
+        }
+
         function readCookie(name) {
             var nameEQ = escape(name) + "=";
             var ca = document.cookie.split(';');
@@ -325,27 +376,31 @@
             return null;
         }
 
+
+
+
         function eraseCookie(name) {
             createCookie(name, "", -1);
         }
 
-       
-        function OpenNextPage(obj, Tid) {
 
+        function OpenNextPage(obj, Tid, CatId, ColorId, productId, userid) {
 
-            debugger;
-
-
-            var first = 'evening-dresses';
-            var second = '';
-            var third = '335';
-            var fourth = '1';
-            var fifth = 'server=localhost;Database=Fashionkred;Integrated Security=True;';
-            //BindSimilarGar(first, second, third, fourth, fifth);
 
             
 
-            BindSimilarGar(first, second, third, fourth, fifth);
+           // alert(userid);
+
+            //            var first = 'evening-dresses';
+            //            var second = '';
+            //            var third = '335';
+            //            var fourth = '1';
+            //           var fifth = 'server=localhost;Database=Fashionkred;Integrated Security=True;';
+
+            var DB = document.getElementById("hdnDb").value;
+            //BindSimilarGar(first, second, third, fourth, fifth);
+
+            BindSimilarGar(CatId, ColorId, productId, userid, DB);
 
             var liId = 'divA' + obj;
             createCookie("liId", liId, 1);
@@ -357,7 +412,7 @@
 
 
 
-            //debugger;
+            //
             //var dd = $("#carousel2").attr("style");
             //dd = dd.replace("max-height: 0px;", "");
             //$("#carousel2").attr("style", dd);
@@ -445,93 +500,124 @@
         var retailer;
         var price;
         var imgurl;
-        
-        function BindSimilarGar(catid, colid, brnid, retid, db) {
 
-            debugger;
+        function BindSimilarGar(catid, colid, productId, userid, db) {
 
+            
+
+            
 
             jQuery.ajax({
-                url: 'look.aspx/BindSimilarItems',
+                url: 'WebServices.aspx/BindSimilarItems',
                 type: "POST",
-                data: "{'categoryId':'" + catid + "', 'colorId':'" + colid + "','brandId':" + brnid + ",'retailerId':" + retid + ",'db':'" + db + "'}",
+                data: "{'categoryId':'" + catid + "', 'colorId':'" + colid + "','productId':" + productId + ",'userid':" + userid + ",'db':'" + db + "'}",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
 
-
                     var myArray = data.d;
 
-                   
+                    //alert(myArray.length);
 
                     if (myArray.length > 0) {
 
-                        var htmlTop = '<li id="div1B1" class="view view-tenth"><a href="javascript:void(0)"><div class="imgd-bg"><div class="green-bg"><img src="assets/images/green-bg.png" alt="" /><div class="text2"><span>2</span><p>Hinge<br />Tanks &<br />Camisoles<br /></p><em>IN</em><p>Red</p></div></div></div></a></li>';
-                        $(".Appenddivsim").append(htmlTop);
-                        for (i = 1; i <= myArray[2].Value.length - 1; i++) {
+                        
+                        var totalCount = 0;
+                        for (j = 0; j < myArray.length; j++) {
+                            
+                            var conlength = myArray[j].Value.length;
+                            totalCount += conlength;
+                            if (j == 0) {
+                               // alert('j=0');
+                                var htmlTop = '<li id="div1B1" class="view view-tenth"><a href="javascript:void(0)"><div class="imgd-bg"><div class="green-bg"><img src="assets/images/green-bg.png" alt="" /><div class="text2"><span>' + conlength + '</span><p>' + catid + '<br /></p><em>IN</em><p>' + colid + '</p></div></div></div></a></li>';
+                                $(".Appenddivsim").append(htmlTop);
+                                htmlTop = '';
+                
+                            }
+                            else if (j == 1) {
+                               // alert('j=1');
 
-                            //for (i = 0; i <= 8; i++) {
+                               
 
-                            id = i;
-                            name = myArray[2].Value[i].name;
-                            brandName = myArray[2].Value[i].brandName;
-                            retailer = myArray[2].Value[i].retailer;
-                            price = myArray[2].Value[i].price;
-                            imgurl = myArray[2].Value[i].images[0].url;
+                                var htmlTop = '<li id="div1B1" class="view view-tenth"><a href="javascript:void(0)"><div class="imgd-bg"><div class="green-bg"><img src="assets/images/green-bg.png" alt="" /><div class="text2"><span>' + conlength + '</span><p>' + catid + '<br /></p><em>IN</em><p>' + colid + '</p></div></div></div></a></li>';
+                                $(".Appenddivsim").append(htmlTop);
+                                htmlTop = '';
+    
+                            }
+
+                            else if (j == 2) {
+                                //alert('j=2');
+                                debugger;
+
+                                var htmlTop = '<li id="div1B1" class="view view-tenth"><a href="javascript:void(0)"><div class="imgd-bg"><div class="green-bg"><img src="assets/images/green-bg.png" alt="" /><div class="text2"><span>' + conlength + '</span><p>' + catid + '<br></p><em>IN</em><p>' + colid + '</p><em>IN</em><p>All Brands</p></div></div></div></a></li>';
+                                $(".Appenddivsim").append(htmlTop);
+                            }
+                            
+                            $("#spnTotalItems").html(totalCount);
+                            
+
+                            for (i = 0; i < myArray[j].Value.length; i++) {
+
+                                //for (i = 0; i <= 8; i++) {
+
+                                var recid = parseInt(i) + 1;
 
 
-                            // alert(i);
-                            AppendHTML(id, name, brandName, retailer, price, imgurl);
+                                id = i;
+                                name = myArray[j].Value[i].name;
+                                brandName = myArray[j].Value[i].brandName;
+                                retailer = myArray[j].Value[i].retailer;
+                                price = myArray[j].Value[i].price;
+                                imgurl = myArray[j].Value[i].images[0].url;
+
+                                AppendHTML(id, name, brandName, retailer, price, imgurl);
+
+                            }
 
                         }
-
                     }
 
-                    //alert('v');
-
-                   
-                    
-
-
-                    
 
                     var carousel2 = $('#carousel2').elastislide();
 
-                   
 
+                },
 
+               
+                error: function (response) {
+                    alert('err');
 
-
-
-
+                    alert(response.responseText);
+                    settings.error(response);
+                    if (settings.debug) { alert("Error Calling Method \"" + settings.methodName + "\"\n\n+" + response.responseText); }
                 }
 
             });
 
-            
+
         }
 
         function AppendHTML(id, name, brandname, retailer, price, imgurl) {
             //alert(imgurl);
-            
 
-           
-            var html = '<li class="view view-tenth" id="divB' + id + '"><a href="javascript:void(0)" onclick="return ShowButtonssimilar(' + id + ');"><div><img id="img1111" src="' + imgurl + '"></div><span class="hidedata1 hidetitle">' + name + '</span><p class="hidedata hide">' + brandname + '</p><p class="price hide Pink">Barneys New York</p><p class="price hide">$' + price + '</p><div class="border-dotted1 hide"></div></a><input class="DisplayImages1" id="ImgC' + id + '" type="image" src="assets/images/add-look.PNG" onclick="OpenNextPagesimilar(this);"/></li>';
 
-            
+
+            var html = '<li class="view view-tenth" id="divB' + id + '"><a href="javascript:void(0)" onclick="return ShowButtonssimilar(' + id + ');"><div><img id="img1111" src="' + imgurl + '"></div><span class="hidedata1 hidetitle">' + name + '</span><p class="hidedata hide">' + brandname + '</p><p class="price hide Pink">Barneys New York</p><p class="price hide">$' + price + '</p><div class="border-dotted1 hide"></div></a><input class="DisplayImages1" id="ImgC' + id + '" type="image" src="assets/images/add-look.PNG" onclick="OpenNextPagesimilar(this);return false;"/></li>';
+
+
             $(".Appenddivsim").append(html);
 
-            
+
 
 
 
         }
 
-       
+
 
 
         function OnBackClick() {
-            window.location.href = "edit-look.html";
+            window.location.href = "createlook.aspx";
         }
 
         function GrayBackgroundOnEdit() {
@@ -571,6 +657,18 @@
     </script>
 </asp:Content>
 <asp:Content ID="BodyContent" runat="server" ContentPlaceHolderID="MainContent">
+
+    <div id="fb-root"></div>
+<script>(function (d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=175524155933050";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+    <div id="divMainContainer">
+    <input type="hidden" runat="server" id="hdnOrgLookId" />
     <div id="backbutton">
         <img id="imgback" src="Images/newbackbutton.png" alt="" />
     </div>
@@ -580,6 +678,7 @@
     <!--=== End Top ===-->
     <!--banner-->
     <!--block1-->
+    <input type="hidden" runat="server" id="hdnDb" />
     <div class="container">
         <div id="_hideheader" class="margin-bottom-49 row-fluid">
             <!--left-->
@@ -589,8 +688,14 @@
                         <dt><a href="#">
                             <asp:Image ID="imgLookUser" runat="server" /></a></dt>
                         <dd>
-                            <asp:Literal ID="lblLookUserName" runat="server"></asp:Literal>
-                            <span>asked for your opinion </span>
+                            <span>
+                                <asp:Literal ID="lblStyle" runat="server">
+                                </asp:Literal></span>
+                            <%-- <%# (lbl.Text).ToString() == "0" ? "styled by" : "re-styled by"%>--%>
+                            <a id="aUserName" runat="server" style="color: #D018B6;">
+                                <asp:Literal ID="lblLookUserName" runat="server"></asp:Literal>
+                            </a>
+                            <%--<span >asked for your opinion </span>--%>
                         </dd>
                     </dl>
                 </div>
@@ -615,11 +720,11 @@
                                     <span>
                                         <%# DataBinder.Eval(Container.DataItem, "name")%></span> <span>
                                             <%# DataBinder.Eval(Container.DataItem, "brandName")%></span>
-                                    <p>
-                                        Bobeau Ivory
+                                    <p class="price hide">
+                                      <asp:Label ID="lblColorName" runat="server"></asp:Label>
                                     </p>
-                                    <em>
-                                        <%# DataBinder.Eval(Container.DataItem, "retailer")%></em>
+                                    <p class="price hide">
+                                        <%# DataBinder.Eval(Container.DataItem, "retailer")%></p>
                                     <p class="price hide">
                                         <%# DataBinder.Eval(Container.DataItem, "price")%>
                                     </p>
@@ -627,15 +732,16 @@
                                 <div class="border-dotted1 hide">
                                 </div>
                             </a>
-                            <input class="DisplayImages" id='ImgA<%# DataBinder.Eval(Container.DataItem, "id")%>'
-                                type="image" src="Images/AddtoCloset1.PNG" />
-                            <a href="javascript:void(0);" 
-                                onclick='OpenNextPage(<%# DataBinder.Eval(Container.DataItem, "id")%>,0);'>
+                            <a id='ImgA<%# DataBinder.Eval(Container.DataItem, "id")%>' style="width:92% !important" class="DisplayImages btnDynamic">
+                             <i class="searchicon"></i>ADD TO CLOSET                     
+                        </a>
+                          <%--  <input class="DisplayImages" id='ImgA<%# DataBinder.Eval(Container.DataItem, "id")%>'
+                                type="image" src="Images/AddtoCloset1.PNG" />--%>
+                            <a href="javascript:void(0);" style="width:92% !important" class="DisplayImages btnDynamicGreen" id='ImgF<%# DataBinder.Eval(Container.DataItem, "id")%>' onclick="OpenNextPage('<%# DataBinder.Eval(Container.DataItem, "id")%>','0','<%# DataBinder.Eval(Container.DataItem, "categories") == null ? "" : DataBinder.Eval(Container.DataItem, "categories[0].id")%>','<%# ((System.Collections.Generic.List<ShopSenseDemo.Color>)(DataBinder.Eval(Container.DataItem, "colors"))).Count == 0 ? "" : DataBinder.Eval(Container.DataItem, "colors[0].canonical[0]") %>','<%# DataBinder.Eval(Container.DataItem, "id")%>','4');">
                                 <%--<img src='assets/images/findsimitems.PNG' />--%>
-
-                                 <input onclick="return false;" id='ImgF<%# DataBinder.Eval(Container.DataItem, "id")%>' type="image" class="DisplayImages" src="assets/images/findsimitems.PNG" />
+                                 <i class="searchicon"></i>Find Similar <br />
+                                Tanks & Camsoles      
                             </a>
-                           
                             <%-- <input class="DisplayImages" id='ImgF<%# DataBinder.Eval(Container.DataItem, "id")%>'
                                 type="image" src="assets/images/findsimitems.PNG" onclick="return OpenNextPage(1, 0);" />--%>
                         </li>
@@ -648,12 +754,10 @@
         </div>
         <div class="row-fluid margin-bottom-0 HideSimItem" id="similar_garments">
             <div class="button1">
-                <span class="edit-look">34 items found. Select one to swap into this look</span>
+                <span class="edit-look"><span id="spnTotalItems"></span> items found. Select one to swap into this look</span>
             </div>
-                        <ul id="carousel2" class="elastislide-lists recent-work Appenddivsim">
+            <ul id="carousel2" class="elastislide-lists recent-work Appenddivsim">
             </ul>
-
-
             <a href="" class="arrow1 DisplayImages" id="a1" name="arrow">
                 <img src="assets/images/arrow-bottom.PNG" />
             </a>
@@ -663,16 +767,17 @@
                 <div class="number">
                     <span>
                         <asp:Literal ID="lblLoveCount" runat="server"></asp:Literal></span> <span>
-                            <asp:Literal ID="lblRestyleCount" runat="server"></asp:Literal></span> <span>4 Comment</span>
+                            <asp:Literal ID="lblRestyleCount" runat="server"></asp:Literal></span> <span>
+                                <fb:comments-count href='<%=Request.Url.AbsoluteUri.ToString() %>'></fb:comments-count>Comments</span>
                     <span>4 share</span>
                 </div>
                 <div class="clearfix">
                 </div>
                 <ul class="loginbar comment-block1">
                     <li><a href="#" class="love active">Love</a></li>
-                    <li><a href="#" class="re-style1">Restyle</a></li>
-                    <li><a href="#" class="comment1">comment</a></li>
-                    <li><a href="#" class="share">share</a></li>
+                    <li><a href="createlook.aspx" class="re-style1">Restyle</a></li>
+                    <li><a href="javascript:void(0)" class="comment1">comment</a></li>
+                    <li><a href="javascript:void(0)" class="share">share</a></li>
                 </ul>
             </div>
         </div>
@@ -688,24 +793,10 @@
                             <h5 class="txt mar-bottom11">
                                 <asp:Literal ID="lblLookTitle" runat="server"></asp:Literal>
                                 <span class="div7">#summerstyle Jenny Slade Sandy Jae?,</span>
-                            </h5>
-                            <dt><a href="#">
-                                <img src="assets/images/thumb9.png" alt="" /></a></dt>
-                            <dd>Sarah K
-                                <p class="text1">
-                                    <a href="#">pretty freaking gorgeous, lady!</a>
-                                </p>
-                            </dd>
+                            </h5>                            
                         </dl>
                         <dl class="dl-horizontal">
-                            <dt><a href="#">
-                                <img src="assets/images/thumb10.png" alt="" /></a></dt>
-                            <dd>Rose Summerfield
-                                <p class="text1">
-                                    <a href="#">you're on a real kick with the pink this month, aren't you? :-) Ok, you
-                                        have me convinced. I need a pair!</a>
-                                </p>
-                            </dd>
+                        <div class="fb-comments" data-href="<%=Request.Url.AbsoluteUri.ToString().IndexOf("&sp") > -1 ? Request.Url.AbsoluteUri.ToString().Substring(0,Request.Url.AbsoluteUri.ToString().IndexOf("&sp")) :  Request.Url.AbsoluteUri.ToString() %>" data-width="450" data-numposts="5" data-colorscheme="light"></div>
                         </dl>
                     </div>
                 </div>
@@ -741,10 +832,10 @@
 
 
         $('#carousel').elastislide();
-        
+
         var carousel2 = $('#carousel2').elastislide();
 
-       
+
 
     </script>
     <!--[if lt IE 9]>
@@ -763,4 +854,5 @@
     <asp:Label ID="CreatorId" runat="server" Style="display: none;" />
     <!--js for the page -->
     <hr />
+        </div>
 </asp:Content>

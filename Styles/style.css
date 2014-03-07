@@ -45,7 +45,7 @@ p, a, li {
 
 h1, h2, h3, h4, h5 {
     color: #555;
-    margin-top: 5px;
+    margin-top: 6px;
     text-shadow: none;
     text-shadow: 0 0 1px #f6f6f6;
     font-weight: normal !important;
@@ -2760,14 +2760,14 @@ i.style-switcher-btn-option {
 .DisplayImages {
     padding: 0 7px 8px;
     position: relative;
-    width: 92% !important;
+    
     display: none;
 }
 
 .DisplayImages1 {
     padding: 0 7px 8px;
     position: relative;
-    width: 92% !important;
+   
     display: none;
 }
 
@@ -3274,7 +3274,7 @@ width: 100% !important;
 }
 
 .hide_txt {
-    height: 142px;
+    height: 167px;
 }
 
 .HideSimItem {
@@ -3358,3 +3358,80 @@ margin-top:15px;
      color:#000 !important;
     
 }
+.PopupWindowOuter {
+            display: none;
+            margin-left: 27%;
+            position: fixed;
+            padding: 0px 0px 0px 0px;
+            width: 350px;
+            height: 330px;
+            z-index: 999999;
+            top: 5px;
+            left: 70px;
+            background-color: aqua;
+        }
+
+.btnDynamic {
+-moz-border-bottom-colors: none;
+-moz-border-left-colors: none;
+-moz-border-right-colors: none;
+-moz-border-top-colors: none;
+background-color: #999999 !important;
+/*background-image: -moz-linear-gradient(center top , #FFFFFF, #E6E6E6);
+background-repeat: repeat-x;
+border-color: #E6E6E6 #E6E6E6 #B3B3B3;
+border-image: none;*/
+border-radius: 20px !important;
+/*border-style: solid;*/
+border-width: 1px;
+box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+color: #FFF !important;
+cursor: pointer;
+display: inline-block;
+font-size: 13px;
+line-height: 28px;
+margin-bottom: 0;
+padding: 4px 10px;
+text-align: center;
+vertical-align: middle;
+}
+.btnDynamic a:hover {
+color: #D018B6 !important;
+}
+
+.searchicon {
+background-position: -380px -144px;
+background-image: url("../assets/images/search-icon.png");
+background-position: 14px 14px;
+background-repeat: no-repeat;
+display: inline-block;
+height: 14px;
+line-height: 14px;
+vertical-align: text-top;
+width: 14px;
+}
+
+
+.btnDynamicGreen {
+-moz-border-bottom-colors: none;
+-moz-border-left-colors: none;
+-moz-border-right-colors: none;
+-moz-border-top-colors: none;
+background-color: #9AB139 !important;
+border-radius: 20px !important;
+border-width: 1px;
+box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+color: #FFF !important;
+cursor: pointer;
+display: inline-block;
+font-size: 13px;
+line-height: 20px;
+margin-bottom: 0;
+padding: 4px 10px;
+text-align: center;
+vertical-align: middle;
+}
+.btnDynamicGreen a:hover {
+color: #D018B6 !important;
+}
+

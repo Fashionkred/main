@@ -91,7 +91,7 @@ public partial class Outfit : BasePage
             Master.FindControl("head").Controls.Add(image);
         }
 
-        
+
 
         HtmlMeta desc = new HtmlMeta();
         desc.Attributes.Add("property", "og:description");
@@ -115,6 +115,8 @@ public partial class Outfit : BasePage
     protected void Page_Load(object sender, EventArgs e)
     {
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+
+        hdnDb.Value = "";
 
         bool isVoted = false;
 
@@ -213,6 +215,18 @@ public partial class Outfit : BasePage
         if (look.creator.id == user.id)
             isCreatorView = true;
 
+        if (look.originalLookId.ToString() == "0")
+        {
+            lblStyle.Text = "styled by";
+        }
+        else
+        {
+            lblStyle.Text = "re-styled by";
+        }
+
+
+        // Redirecting to user profile page when click on username //
+        aUserName.HRef = "user.aspx?userid=" + look.creator.id;
         imgLookUser.ImageUrl = look.creator.pic;
         lblLookUserName.Text = look.creator.name;
         lblLookTitle.Text = look.title;
@@ -223,6 +237,7 @@ public partial class Outfit : BasePage
         dlSingleLook.DataSource = look.products;
         dlSingleLook.DataBind();
 
+
         //Bind Tags//
         dlTags.DataSource = look.tags;
         dlTags.DataBind();
@@ -232,34 +247,26 @@ public partial class Outfit : BasePage
     {
         if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
         {
+
+
             var product = (Product)e.Item.DataItem;
+
+            long id = product.id;
+
             System.Web.UI.WebControls.Image imageLook = e.Item.FindControl("imgLook") as System.Web.UI.WebControls.Image;
+            System.Web.UI.WebControls.Label lblColorName = e.Item.FindControl("lblColorName") as System.Web.UI.WebControls.Label;
 
             //New Code//
 
-            categoryId = product.GetCategory();
+            //categoryId = product.GetCategoryId();
 
-            colorid = product.GetColor();
-
-
-
-
+            lblColorName.Text = product.GetColor().ToString();
 
             imageLook.ImageUrl = product.GetImageUrl();
         }
 
+
     }
 
-    
-
-    [WebMethod]
-    public static Array BindSimilarItems(string categoryId, string colorId, long brandId, long retailerId, string db)
-    {
-
-        Dictionary<string, List<Product>> similarProducts = Product.GetSimilarProducts(categoryId, colorId, brandId, retailerId, db);
-
-        return similarProducts.ToArray();
-        
-    }
 
 }

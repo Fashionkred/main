@@ -17,11 +17,11 @@ namespace ShopSenseDemo
     {
         private long userId;
         private int contestId;
-            
+
         public void SetOGTags()
         {
             Master.Page.Title = "Fashionkred - online style board for fashionable looks!";
-            
+
             HtmlMeta title = new HtmlMeta();
             title.Attributes.Add("property", "og:title");
             title.Content = Master.Page.Title;
@@ -47,21 +47,45 @@ namespace ShopSenseDemo
             type.Attributes.Add("property", "og:type");
             type.Content = "website";
             Master.FindControl("head").Controls.Add(type);
-            
+
             HtmlMeta appId = new HtmlMeta();
             appId.Attributes.Add("property", "fb:app_id");
             appId.Content = ConfigurationManager.AppSettings["AppId"];
             Master.FindControl("head").Controls.Add(appId);
         }
 
+
+        public static long userIdOrg;
+        public static long lookId;
+
+
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
 
+            hdnDb.Value = "";
+
+            if (Session["contest"] == null)
+            {
+                contestId = int.Parse(ConfigurationManager.AppSettings["ContestId1"]);
+                Session["contest"] = contestId;
+            }
+            else
+            {
+                contestId = (int)Session["contest"];
+            }
+
+            //Request.QueryString["uid"] = "4";
+            //Request.QueryString["lid"] = "2648";
+            //Request.QueryString["votetype"] = "up";
+            //Request.QueryString["point"] = "0";
+            //Request.QueryString["lightweight"] = "1";
+
             //Redirect to signup page unless invite code is there
             if (Request.QueryString["invite"] == null && Request.Cookies["beta"] == null)
             {
-            //    Response.Redirect("http://signup.fashionkred.com/");
+                //    Response.Redirect("http://signup.fashionkred.com/");
             }
             else
             {
@@ -103,28 +127,28 @@ namespace ShopSenseDemo
             }
 
             //set contest
-            if (Request.QueryString["contestid"] != null)
-            {
-                this.contestId = int.Parse(Request.QueryString["contestid"].ToString());
-                this.Session["contest"] = this.contestId;
-            }
-            else
-            {
-                this.contestId = 0;
-                this.Session["contest"] = this.contestId;
-            }
+            //if (Request.QueryString["contestid"] != null)
+            //{
+            //    this.contestId = int.Parse(Request.QueryString["contestid"].ToString());
+            //    this.Session["contest"] = this.contestId;
+            //}
+            //else
+            //{
+            //    this.contestId = 0;
+            //    this.Session["contest"] = this.contestId;
+            //}
 
             //SetOGTags
             SetOGTags();
 
             //set top user bar
-            this.userId = user.id;
+            userIdOrg = user.id;
             //System.Web.UI.WebControls.Image userImage = (System.Web.UI.WebControls.Image)this.Master.FindControl("UserImage");
             //HyperLink userName = (HyperLink)this.Master.FindControl("UserName");
             //Label userPoints = (Label)this.Master.FindControl("UserPoints");
             //HyperLink loginLink = (HyperLink)this.Master.FindControl("LogInLink");
             //Panel dropDown = (Panel)this.Master.FindControl("DropDown");
-            if (this.userId > 0)
+            if (userIdOrg > 0)
             {
                 UserImage.ImageUrl = user.pic;
                 UserName.Text = user.name;
@@ -144,15 +168,27 @@ namespace ShopSenseDemo
             //anonymous view show the dialogue
             if (user.id == 0)
             {
-                Unsigned.Text = "1";
+                hdnchkuser.Value = "0";
+            }
+            else
+            {
+                 hdnchkuser.Value = user.id.ToString();
             }
 
             //Let's set the sharing metadata
             UserShare.Text = this.user.IsPrivate ? "0" : "1";
             UserId.Text = this.user.id.ToString();
 
-            //Let's get the sets and display them
-            DisplaySets(Look.GetHPLooks(db, user.id, contestId));
+            //string tagId = Request.QueryString["tagid"];
+            ////Let's get the sets and display them
+            //if (!string.IsNullOrEmpty(tagId))
+            //{
+            //    DisplaySets(Look.GetTaggedLooks(db, user.id, int.Parse(tagId)));
+            //}
+            //else
+            //{
+            //    DisplaySets(Look.GetHPLooks(db, user.id, contestId));
+            //}
 
         }
 
@@ -189,90 +225,90 @@ namespace ShopSenseDemo
         //    return looks;
         //}
 
-        public void DisplaySets(List<Look> results)
-        {            
-            dlLook.DataSource = results;
-            dlLook.DataBind();
+        // public void DisplaySets(List<Look> results)
+        // {
+        //    dlLook.DataSource = results;
+        ///   dlLook.DataBind();
 
 
-            ////Code Not being used////
+        ////Code Not being used////
 
-            //foreach (Look look in results)
-            //{
-            //    Panel lookPanel = new Panel();
-            //    lookPanel.Style.Add("display", "inline");
-            //    lookPanel.Style.Add("position", "relative");
+        //foreach (Look look in results)
+        //{
+        //    Panel lookPanel = new Panel();
+        //    lookPanel.Style.Add("display", "inline");
+        //    lookPanel.Style.Add("position", "relative");
 
-            //    Panel lookImage = new Panel();
-            //    lookImage.Style.Add("display", "inline");
-            //    HyperLink lookLink = new HyperLink();
+        //    Panel lookImage = new Panel();
+        //    lookImage.Style.Add("display", "inline");
+        //    HyperLink lookLink = new HyperLink();
 
-            //    lookLink.NavigateUrl = "look.aspx?lid=" + look.id;
-            //    System.Web.UI.WebControls.Image lookImg = new System.Web.UI.WebControls.Image();
-            //    string imageFilePath = Path.Combine(Server.MapPath("images/looks"), look.id + ".jpg");
+        //    lookLink.NavigateUrl = "look.aspx?lid=" + look.id;
+        //    System.Web.UI.WebControls.Image lookImg = new System.Web.UI.WebControls.Image();
+        //    string imageFilePath = Path.Combine(Server.MapPath("images/looks"), look.id + ".jpg");
 
-            //    if (!File.Exists(imageFilePath))
-            //        continue;
+        //    if (!File.Exists(imageFilePath))
+        //        continue;
 
-            //    lookImg.ImageUrl = "http://fashionkred.com/images/looks/" + look.id + ".jpg";
-            //    lookImg.CssClass = "item";
+        //    lookImg.ImageUrl = "http://fashionkred.com/images/looks/" + look.id + ".jpg";
+        //    lookImg.CssClass = "item";
 
-            //    lookLink.Controls.Add(lookImg);
-            //    lookImage.Controls.Add(lookLink);
-            //    lookPanel.Controls.Add(lookImage);
+        //    lookLink.Controls.Add(lookImg);
+        //    lookImage.Controls.Add(lookLink);
+        //    lookPanel.Controls.Add(lookImage);
 
-            //    Panel sharePanel = new Panel();
-            //    sharePanel.CssClass = "shareBtnWrappr";
-            //    //lookPanel.Controls.Add(new Literal { Text = "<div class=\"share-btn\" style=\"padding-right: 6px;z-index:1;\">Share</div>" });
+        //    Panel sharePanel = new Panel();
+        //    sharePanel.CssClass = "shareBtnWrappr";
+        //    //lookPanel.Controls.Add(new Literal { Text = "<div class=\"share-btn\" style=\"padding-right: 6px;z-index:1;\">Share</div>" });
 
-            //    Panel lovePanel = new Panel();
-            //    lovePanel.CssClass = "love-button";
-            //    lovePanel.ID = "love-" + look.id.ToString();
-            //    lovePanel.ClientIDMode = System.Web.UI.ClientIDMode.Static;
-            //    Label loveLabel = new Label();
-            //    loveLabel.ID = "love-" + look.id.ToString() + "label";
-            //    loveLabel.ClientIDMode = System.Web.UI.ClientIDMode.Static;
-            //    loveLabel.Text = "Love";
-            //    lovePanel.Controls.Add(loveLabel);
-            //    sharePanel.Controls.Add(lovePanel);
+        //    Panel lovePanel = new Panel();
+        //    lovePanel.CssClass = "love-button";
+        //    lovePanel.ID = "love-" + look.id.ToString();
+        //    lovePanel.ClientIDMode = System.Web.UI.ClientIDMode.Static;
+        //    Label loveLabel = new Label();
+        //    loveLabel.ID = "love-" + look.id.ToString() + "label";
+        //    loveLabel.ClientIDMode = System.Web.UI.ClientIDMode.Static;
+        //    loveLabel.Text = "Love";
+        //    lovePanel.Controls.Add(loveLabel);
+        //    sharePanel.Controls.Add(lovePanel);
 
-            //    Panel Pinterest = new Panel();
-            //    Pinterest.Style.Add("display", "inline");   
-            //    Pinterest.Controls.Add(new Literal
-            //    {
-            //        Text = "<a target=\"_blank\"  href=\"create.aspx?lid=" + look.id + "\"><img src=\"images/create-btn.png\" alt=\"Create a look\" /></a>" +
-            //            "<a class=\"OutBoundLink\" target=\"_blank\" href=\"//pinterest.com/pin/create/button/?url=" + HttpUtility.UrlEncode("http://fashionkred.com/look.aspx?lid=" + look.id + "&ref=" + user.id) +
-            //            "&media=" + HttpUtility.UrlEncode(lookImg.ImageUrl) + "&description=" + HttpUtility.UrlEncode("Found this look at Fashionkred!") + "\"> " +
-            //            "<img src=\"images/pinterest_pin-it_icon.png\" alt=\"Pin It\" title=\"Pin on Pinterest\" style=\"height:24px;\" /></a>"
-            //    });
+        //    Panel Pinterest = new Panel();
+        //    Pinterest.Style.Add("display", "inline");   
+        //    Pinterest.Controls.Add(new Literal
+        //    {
+        //        Text = "<a target=\"_blank\"  href=\"create.aspx?lid=" + look.id + "\"><img src=\"images/create-btn.png\" alt=\"Create a look\" /></a>" +
+        //            "<a class=\"OutBoundLink\" target=\"_blank\" href=\"//pinterest.com/pin/create/button/?url=" + HttpUtility.UrlEncode("http://fashionkred.com/look.aspx?lid=" + look.id + "&ref=" + user.id) +
+        //            "&media=" + HttpUtility.UrlEncode(lookImg.ImageUrl) + "&description=" + HttpUtility.UrlEncode("Found this look at Fashionkred!") + "\"> " +
+        //            "<img src=\"images/pinterest_pin-it_icon.png\" alt=\"Pin It\" title=\"Pin on Pinterest\" style=\"height:24px;\" /></a>"
+        //    });
 
-            //    sharePanel.Controls.Add(Pinterest);
+        //    sharePanel.Controls.Add(Pinterest);
 
-            //    lookPanel.Controls.Add(sharePanel);
+        //    lookPanel.Controls.Add(sharePanel);
 
-            //    Panel userPanel = new Panel();
-            //    userPanel.CssClass = "userPanel";
-            //    HyperLink userLink = new HyperLink();
-            //    userLink.NavigateUrl = "user.aspx?uid=" + look.creator.id;
-            //    userPanel.Controls.Add(userLink);
+        //    Panel userPanel = new Panel();
+        //    userPanel.CssClass = "userPanel";
+        //    HyperLink userLink = new HyperLink();
+        //    userLink.NavigateUrl = "user.aspx?uid=" + look.creator.id;
+        //    userPanel.Controls.Add(userLink);
 
-                
-            //    System.Web.UI.WebControls.Image userImg = new System.Web.UI.WebControls.Image();
-            //    userImg.Style.Add("Height", "30px");
-            //    userImg.Style.Add("Width", "30px");
 
-            //    userImg.ImageUrl = look.creator.pic;
-            //    userLink.Controls.Add(userImg);
+        //    System.Web.UI.WebControls.Image userImg = new System.Web.UI.WebControls.Image();
+        //    userImg.Style.Add("Height", "30px");
+        //    userImg.Style.Add("Width", "30px");
 
-            //    userLink.Controls.Add(new Literal { Text = "<span style=\"color:#717171;\"> Made by: " + look.creator.name + "<br> for " 
-            //        + look.TagsFormatted() + " " + look.upVote + " loves, "+ look.restyleCount + " restyles</span>" });
+        //    userImg.ImageUrl = look.creator.pic;
+        //    userLink.Controls.Add(userImg);
 
-            //    lookPanel.Controls.Add(userPanel);
-            //    //LookContent.Controls.Add(lookPanel);
+        //    userLink.Controls.Add(new Literal { Text = "<span style=\"color:#717171;\"> Made by: " + look.creator.name + "<br> for " 
+        //        + look.TagsFormatted() + " " + look.upVote + " loves, "+ look.restyleCount + " restyles</span>" });
 
-            //}
-            
-        }
+        //    lookPanel.Controls.Add(userPanel);
+        //    //LookContent.Controls.Add(lookPanel);
+
+        //}
+
+        // }
 
         /// <summary>
         /// Bind inner repeater on each itemdatabound
@@ -283,44 +319,20 @@ namespace ShopSenseDemo
         {
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
             {
-                Repeater innerLook = (Repeater)e.Item.FindControl("dlInnerLook");
-                Repeater tags = (Repeater)e.Item.FindControl("dlTags");                                              
-                    var look = (Look)e.Item.DataItem;
-                    innerLook.DataSource = look.products;
-                    innerLook.DataBind();
-                    tags.DataSource = look.tags;
-                    tags.DataBind();
-            }
-            
-        }
+                //Repeater innerLook = (Repeater)e.Item.FindControl("dlInnerLook");
+                Repeater tags = (Repeater)e.Item.FindControl("dlTags");
+                var look = (Look)e.Item.DataItem;
 
-        /// <summary>
-        /// Set image URL and css
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected void dlInnerLook_ItemDataBound(object sender, RepeaterItemEventArgs e)
-        {
-            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
-            {               
-                var product = (Product)e.Item.DataItem;
-                System.Web.UI.WebControls.Image imageLook = e.Item.FindControl("imgLook") as System.Web.UI.WebControls.Image;
-                System.Web.UI.WebControls.HyperLink lnkLook = e.Item.FindControl("lnkLookPage") as System.Web.UI.WebControls.HyperLink;
-                System.Web.UI.HtmlControls.HtmlGenericControl divImage = e.Item.FindControl("divimgLook") as System.Web.UI.HtmlControls.HtmlGenericControl;
-                imageLook.ImageUrl = product.GetImageUrl();               
-                if (product.isCover == true)
-                {
-                    divImage.Attributes["class"] = "view view-tenth span4";
-                }
-                else
-                {
-                    divImage.Attributes["class"] = "view view-tenth span3";
-                }
 
+                // innerLook.DataSource = look.products;
+                // innerLook.DataBind();
+                tags.DataSource = look.tags;
+                tags.DataBind();
             }
 
         }
-      
+
 
     }
+
 }
