@@ -161,8 +161,8 @@ public partial class Vote : BasePage
     {
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
 
-        bool isVoted = false;
-        Look look = Look.GetLookById(lookId, userId, out isVoted, db);
+        //bool isVoted = false;
+        Look look = Look.GetLookById(lookId, userId, db);
 
         //send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
         if (look.creator.facebookId > 0 && vote == VoteType.UpVote)

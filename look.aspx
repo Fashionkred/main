@@ -508,7 +508,7 @@
             
 
             jQuery.ajax({
-                url: 'WebServices.aspx/BindSimilarItems',
+                url: 'WebServices.aspx/GetSimilarItems',
                 type: "POST",
                 data: "{'categoryId':'" + catid + "', 'colorId':'" + colid + "','productId':" + productId + ",'userid':" + userid + ",'db':'" + db + "'}",
                 contentType: "application/json; charset=utf-8",

@@ -68,9 +68,8 @@ public partial class create : BasePage
 
         if (Request.QueryString["lid"] != null)
         {
-            bool isVoted;
             long lookId = long.Parse(Request.QueryString["lid"]);
-            initialLook = Look.GetLookById(lookId, this.user.id, out isVoted, db);
+            initialLook = Look.GetLookById(lookId, this.user.id, db);
             this.contestId = initialLook.contestId;
             this.Session["contest"] = this.contestId;
             this.OriginalLook.Text = lookId.ToString();
