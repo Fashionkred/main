@@ -6,7 +6,7 @@
     {
         // Code that runs on application startup
         
-        HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin","*");
+        //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin","*");
     }
 
     protected void Application_AcquireRequestState(object sender, EventArgs e)
@@ -43,13 +43,13 @@
 
                             // create user cookie
                             HttpCookie userid = new HttpCookie("__userid");
-                            userid.Value = userProfile.id.ToString();
+                            userid.Value = userProfile.userId.ToString();
                             userid.Expires = DateTime.UtcNow.AddDays(14);
                             Response.Cookies.Add(userid);
 
                             // create authentication cookie
                             HttpCookie auth = new HttpCookie("__auth");
-                            auth.Value = WebHelper.CreateAuthString(userProfile.id);
+                            auth.Value = WebHelper.CreateAuthString(userProfile.userId);
                             auth.Expires = DateTime.UtcNow.AddDays(14);
                             Response.Cookies.Add(auth);
                         }

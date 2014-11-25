@@ -98,7 +98,7 @@ public partial class Vote : BasePage
         if (this.Session["user"] != null)
         {
             UserProfile user = this.Session["user"] as UserProfile;
-            if (user.id != this.userId)
+            if (user.userId != this.userId)
             {
                 VoteStatusMessage message = new VoteStatusMessage() { ErrorMessage = "Sorry, we\'ve encountered an unknown error.<br />Please try again." };
                 string callbackName = Request.QueryString["callback"];
@@ -173,7 +173,7 @@ public partial class Vote : BasePage
             
             try
             {
-                if (UserProfile.IsFriend(look.creator.id, user.facebookId))
+                if (UserProfile.IsFriend(look.creator.userId, user.facebookId))
                 {
                     //Send the notification only if the user is creator's friend
                     appAccessToken = FacebookHelper.SendNotification(appAccessToken, look.creator.facebookId, user.facebookId, look);
@@ -286,7 +286,7 @@ public partial class Vote : BasePage
             msg.FavoritesHtml = WebHelper.RenderHtml(favorites);
 
             //set follower bit
-            msg.IsFollower = UserProfile.IsFollower(msg.Look.creator.id, this.userId, db) ? 1 : 0;
+            msg.IsFollower = UserProfile.IsFollower(msg.Look.creator.userId, this.userId, db) ? 1 : 0;
             
             string callbackName = Request.QueryString["callback"];
             Response.Write( callbackName + "(" + SerializationHelper.ToJSONString(typeof(VoteStatusMessage), msg) + ");");

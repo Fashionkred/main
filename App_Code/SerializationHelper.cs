@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using System.Runtime.Serialization;
 
 namespace ShopSenseDemo
 {
@@ -13,7 +14,8 @@ namespace ShopSenseDemo
         {
             using (MemoryStream stream = new MemoryStream())
             {
-                DataContractJsonSerializer ser = new DataContractJsonSerializer(type);
+                //List <object> knownTypes = new List<object>{Product, UserProfile, Look}();
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(type, new Type[] {typeof(Product), typeof(UserProfile), typeof(Tag), typeof(CategoryTree)});
                 ser.WriteObject(stream, msg);
 
                 stream.Position = 0;

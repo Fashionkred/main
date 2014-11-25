@@ -69,7 +69,7 @@ public partial class create : BasePage
         if (Request.QueryString["lid"] != null)
         {
             long lookId = long.Parse(Request.QueryString["lid"]);
-            initialLook = Look.GetLookById(lookId, this.user.id, db);
+            initialLook = Look.GetLookById(lookId, this.user.userId, db);
             this.contestId = initialLook.contestId;
             this.Session["contest"] = this.contestId;
             this.OriginalLook.Text = lookId.ToString();
@@ -99,12 +99,12 @@ public partial class create : BasePage
         userImage.ImageUrl = user.pic;
         HyperLink userName = (HyperLink)this.Master.FindControl("UserName");
         userName.Text = user.name;
-        userName.NavigateUrl = "user.aspx?uid=" + user.id;
+        userName.NavigateUrl = "user.aspx?uid=" + user.userId;
 
         Label userPoints = (Label)this.Master.FindControl("UserPoints");
         userPoints.Text = user.points.ToString() + " votes";
 
-        this.userId = user.id;
+        this.userId = user.userId;
         UserId.Text = this.userId.ToString();
         UserShare.Text = this.user.IsPrivate ? "0" : "1";
 
@@ -163,7 +163,7 @@ public partial class create : BasePage
                 favCaptionCarousel.Controls.Add(cat);
             }
             Favorites.Controls.Add(favCaptionCarousel);
-            Panel colorPicker = new ColorPickerPanel(user.id, this.contestId, position);
+            Panel colorPicker = new ColorPickerPanel(user.userId, this.contestId, position);
             Favorites.Controls.Add(colorPicker);
             
 

@@ -171,7 +171,7 @@ public partial class Outfit : BasePage
         if (this.Session["lid"] != null)
         {
             look.id = long.Parse(this.Session["lid"].ToString());
-            look = Look.GetLookById(look.id, this.user.id, db);
+            look = Look.GetLookById(look.id, this.user.userId, db);
 
             //clear the session
             this.Session["lid"] = null;
@@ -180,12 +180,12 @@ public partial class Outfit : BasePage
         else if (Request.QueryString["lid"] != null)
         {
             look.id = long.Parse(Request.QueryString["lid"]);
-            look = Look.GetLookById(look.id, this.user.id, db);
+            look = Look.GetLookById(look.id, this.user.userId, db);
         }
 
         else
         {
-            look = Look.GetRandomLook(this.contestId, this.user.id, db);
+            look = Look.GetRandomLook(this.contestId, this.user.userId, db);
         }
 
         //Make sure we have a look or at least 2 products in the look
@@ -212,7 +212,7 @@ public partial class Outfit : BasePage
         //Check if the look's creator is the current logged in user
         bool isCreatorView = false;
 
-        if (look.creator.id == user.id)
+        if (look.creator.userId == user.userId)
             isCreatorView = true;
 
         if (look.originalLookId.ToString() == "0")
@@ -226,7 +226,7 @@ public partial class Outfit : BasePage
 
 
         // Redirecting to user profile page when click on username //
-        aUserName.HRef = "user.aspx?userid=" + look.creator.id;
+        aUserName.HRef = "user.aspx?userid=" + look.creator.userId;
         imgLookUser.ImageUrl = look.creator.pic;
         lblLookUserName.Text = look.creator.name;
         lblLookTitle.Text = look.title;

@@ -12,20 +12,26 @@ using System.Data.SqlClient;
 using System.Web.Services;
 using ShopSenseDemo;
 using System.Web.Script.Serialization;
+using System.Runtime.Serialization;
+using System.Net;
 
 
 public partial class WebServices : System.Web.UI.Page
 {
+    public static string userAgent { set; get; }
 
     protected void Page_Load(object sender, EventArgs e)
     {
-
+        userAgent = Request.UserAgent;
     }
 
 
     // Getting Connection String.
     public static string GetConnectionString()
     {
+        //if (!HttpContext.Current.Request.UserAgent.Contains("zssss"))
+        //    return string.Empty;
+           
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
 
         return db;
@@ -36,6 +42,7 @@ public partial class WebServices : System.Web.UI.Page
     [System.Web.Services.WebMethod]
     public static Array BindLooks(string tagId, string userId, string pageId, string db)
     {
+        
 
         db = GetConnectionString();
 
@@ -81,12 +88,26 @@ public partial class WebServices : System.Web.UI.Page
     }
 
     [System.Web.Services.WebMethod]
+    public static Array GetHomePageLooks(long userId, int offset, int limit)
+    {
+
+        string db = GetConnectionString();
+
+        Array looks = Look.GetHomePageLooks(db, userId, offset, limit).ToArray();
+
+        return looks;
+
+    }
+
+    [System.Web.Services.WebMethod]
     public static Array GetRecentLooks(long userId, int offset, int limit)
     {
 
         return GetFreshLooks(userId, offset, limit);
 
     }
+
+
     [System.Web.Services.WebMethod]
 
     public static Array GetPopularTags(long userId, int offset, int limit)
@@ -147,6 +168,16 @@ public partial class WebServices : System.Web.UI.Page
     }
 
     [System.Web.Services.WebMethod]
+    public static Array GetPopularItemsByUser(long userId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        Array products = Product.GetPopularProductsByUser(userId, db, offset, limit).ToArray();
+
+        return products;
+    }
+
+    [System.Web.Services.WebMethod]
     public static Array GetTaggedPopularStylists(long userId, long tagId)
     {
         string db = GetConnectionString();
@@ -189,6 +220,31 @@ public partial class WebServices : System.Web.UI.Page
 
         List<Look> looks = new List<ShopSenseDemo.Look>();
         looks.Add(look);
+        //set up the image for the combined look
+        try
+        {
+            string imageFilePath = Path.Combine(HttpContext.Current.Server.MapPath("images/looks"), look.id + ".jpg");
+
+            if (look.products.Count >= 3)
+            {
+                if (!File.Exists(imageFilePath))
+                {
+                    WebHelper.CreateLookPanel(look, imageFilePath);
+                }
+            }
+            else
+            {
+                if (!File.Exists(imageFilePath))
+                {
+                    WebHelper.MergeTwoImages(look.products[0].GetImageUrl(), look.products[1].GetImageUrl(), imageFilePath);
+                }
+            }
+        }
+        catch
+        {
+            //signal to the pinterest pinner that image unavailable?
+        }
+
         return looks.ToArray();
     }
     [WebMethod]
@@ -234,6 +290,7 @@ public partial class WebServices : System.Web.UI.Page
         return colorOptions.ToArray();
 
     }
+    
     [WebMethod]
     public static string GetCategoryTree()
     {
@@ -247,20 +304,58 @@ public partial class WebServices : System.Web.UI.Page
         //return trees.ToArray();
     }
     [WebMethod]
-    public static Array GetClosetItems(long userId)
+    public static string GetMetaCategoryTree()
     {
 
         string db = GetConnectionString();
 
-        return UserProfile.GetClosetProducts(userId, db).ToArray();
+        Dictionary<Category, List<Category>> metaCats = Category.GetMetaCategories(db);
+
+
+        return SerializationHelper.ToJSONString(typeof(Dictionary<Category, List<Category>>), metaCats);
+
+        //return trees.ToArray();
+    }
+
+    [WebMethod]
+    public static Array GetColors()
+    {
+        string db = GetConnectionString();
+
+        Dictionary<CanonicalColors, string> colors = new Dictionary<CanonicalColors, string>();
+        colors.Add(CanonicalColors.Beige, "Beige");
+        colors.Add(CanonicalColors.Black, "Black");
+        colors.Add(CanonicalColors.Blue, "Blue");
+        colors.Add(CanonicalColors.Brown, "Brown");
+        colors.Add(CanonicalColors.Gold, "Gold");
+        colors.Add(CanonicalColors.Gray, "Gray");
+        colors.Add(CanonicalColors.Green, "Green");
+        colors.Add(CanonicalColors.Orange, "Orange");
+        colors.Add(CanonicalColors.Pink, "Pink");
+        colors.Add(CanonicalColors.Purple, "Purple");
+        colors.Add(CanonicalColors.Red, "Red");
+        colors.Add(CanonicalColors.Silver, "Silver");
+        colors.Add(CanonicalColors.White, "White");
+        colors.Add(CanonicalColors.Yellow, "Yellow");
+
+        return colors.ToArray();
+    }
+
+    [WebMethod]
+    public static Array GetClosetItems(long userId, long viewerId)
+    {
+
+        string db = GetConnectionString();
+
+        return UserProfile.GetClosetProducts(userId, db, viewerId).ToArray();
     }
     [WebMethod]
-    public static Array GetClosetItemsByMetaCat(long userId,string metaCat, int offset, int limit)
+    public static Array GetClosetItemsByMetaCat(long userId, string metaCat, int offset, int limit, long viewerId)
     {
 
         string db = GetConnectionString();
 
-        return UserProfile.GetClosetProductsByMetaCat(userId, metaCat, db, offset, limit).ToArray();
+        return UserProfile.GetClosetProductsByMetaCat(userId, metaCat, db, offset, limit, viewerId).ToArray();
     }
     [WebMethod]
     public static Array GetClosetItemsByDate(long userId, int offset, int limit)
@@ -271,13 +366,22 @@ public partial class WebServices : System.Web.UI.Page
         return UserProfile.GetClosetProductsByDate(userId, db, offset, limit).ToArray();
     }
     [WebMethod]
-    public static Array GetPopularProducts(long userId, int offset, int limit, string categoryId=null, string colorId=null, string tags=null)
+    public static Array GetPopularProducts(long userId, int offset, int limit, string categoryId=null, string colorId=null, string tags=null, int brandId=0)
     {
 
         string db = GetConnectionString();
 
-        return Product.GetPopularProductsByFilters(userId, db, tags,categoryId,colorId,offset, limit).ToArray();
+        return Product.GetPopularProductsByFilters(userId, db, brandId,tags, categoryId, colorId, offset, limit).ToArray();
     }
+    [WebMethod]
+    public static Array GetPopularProductsv2(long userId, int offset, int limit, string categoryId = null, string colorId = null, string tags = null, int brandId = 0)
+    {
+
+        string db = GetConnectionString();
+
+        return Product.GetPopularProductsByFiltersv2(userId, db, brandId, tags, categoryId, colorId, offset, limit).ToArray();
+    }
+
     [WebMethod]
     public static Array SaveLook(long userId, string productMap, string tagMap, string title,  long originalLookId=0, long editLookId=0)
     {
@@ -287,6 +391,31 @@ public partial class WebServices : System.Web.UI.Page
         List<Look> looks = new List<ShopSenseDemo.Look>();
         Look look = Look.SaveLook(db, productMap, userId, tagMap, title, originalLookId, editLookId);
         looks.Add(look);
+
+        //set up the image for the combined look
+        try
+        {
+            string imageFilePath = Path.Combine(HttpContext.Current.Server.MapPath("images/looks"), look.id + ".jpg");
+
+            if (look.products.Count >= 3)
+            {
+                if (!File.Exists(imageFilePath))
+                {
+                    WebHelper.CreateLookPanel(look, imageFilePath);
+                }
+            }
+            else
+            {
+                if (!File.Exists(imageFilePath))
+                {
+                    WebHelper.MergeTwoImages(look.products[0].GetImageUrl(),look.products[1].GetImageUrl(), imageFilePath);
+                }
+            }
+        }
+        catch
+        {
+            //signal to the pinterest pinner that image unavailable?
+        }
         
         return looks.ToArray();
     }
@@ -326,14 +455,15 @@ public partial class WebServices : System.Web.UI.Page
         user.facebookId = facebookId;
         user.name = userName;
         user.locale =locale;
-        user.sex = (gender == "female" ? Sex.Female : Sex.Male);
+        user.gender = (gender == "female" ? Sex.Female : Sex.Male);
+        user.userName = null;
 
         //extended perm
         if (location != null)
             user.location = location;
 
         if (emailId != null)
-            user.email = emailId;
+            user.emailId = emailId;
 
         user.facebookFriends = new List<long>();
         //if (friendsfbId != null)
@@ -349,6 +479,106 @@ public partial class WebServices : System.Web.UI.Page
         users.Add(user);
 
         return users.ToArray();
+    }
+    
+    [WebMethod]
+    public static Array RegisterViaEmail(string userName, string emailId, string password)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
+
+        UserProfile user = new ShopSenseDemo.UserProfile();
+        user.accessToken = null;
+        user.pic = null;
+        user.facebookId = -1;
+        user.userName = userName;
+        user.locale = "en-US";
+        user.gender = Sex.Female;
+        user.password = password;
+        user.emailId = emailId;
+        
+        user.facebookFriends = new List<long>();
+        //if (friendsfbId != null)
+        //{
+        //    foreach (long friendId in friendsfbId)
+        //    {
+        //        user.facebookFriends.Add(friendId);
+        //    }
+        //}
+
+        user = UserProfile.SaveOrUpdateUser(user, db);
+
+        users.Add(user);
+
+        return users.ToArray();
+    }
+
+    [WebMethod]
+    public static Array UpdateUserInfo(long userId, string userName, string name, string emailId, string gender, string pic, string location, string bio, string url, string fbPage=null,
+        string twitterHandle=null, string PinterestHandle=null, string TumblrHandle=null)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
+
+        UserProfile user = new ShopSenseDemo.UserProfile();
+        user.userId = userId;
+        user.pic = pic;
+        user.name = name;
+        user.gender = (gender == "female" ? Sex.Female : Sex.Male);
+        user.userName = userName;
+        user.bio = bio;
+        user.url = url;
+
+        //extended perm
+        if (location != null)
+            user.location = location;
+
+        if (emailId != null)
+            user.emailId = emailId;
+
+        if (fbPage != null)
+            user.fbPage = fbPage;
+
+        if (twitterHandle != null)
+            user.twitterHandle = twitterHandle;
+
+        if (PinterestHandle != null)
+            user.PinterestHandle = PinterestHandle;
+
+        if (TumblrHandle != null)
+            user.TumblrHandle = TumblrHandle;
+
+        user = UserProfile.UpdateUserInfo(user, db);
+
+        users.Add(user);
+
+        return users.ToArray();
+    }
+    
+    [WebMethod]
+    public static bool IsUserNameUnique(string userName)
+    {
+        bool isUnique = false;
+
+        string db = GetConnectionString();
+
+        isUnique = UserProfile.IsUserNameUnique(userName, db);
+
+        return isUnique;
+    }
+
+    [WebMethod]
+    public static bool IsEmailUnique(string emailId)
+    {
+        bool isUnique = false;
+
+        string db = GetConnectionString();
+
+        isUnique = UserProfile.IsEmailUnique(emailId, db);
+
+        return isUnique;
     }
 
     [WebMethod]
@@ -370,7 +600,201 @@ public partial class WebServices : System.Web.UI.Page
         return isSuccess;
     }
 
+    [WebMethod]
+    public static bool FollowFbFriends(long userId, string  subscriberFbIds, bool isFollow)
+    {
+        bool isSuccess = false;
 
+        string db = GetConnectionString();
+
+        isSuccess = UserProfile.SubscribeFbUsers(userId, subscriberFbIds, isFollow, db);
+
+        
+        return isSuccess;
+    }
+    [WebMethod]
+    public static bool ChangePassword (string userName, string oldPassword, string newPassword)
+    {
+        bool isSuccess = false;
+
+        string db = GetConnectionString();
+
+        isSuccess = UserProfile.ChangePassword(userName, oldPassword, newPassword, db);
+
+        
+        return isSuccess;
+    }
+    [WebMethod]
+    public static bool ForgotPassword(string emailId)
+    {
+        bool isSuccess = false;
+
+        string db = GetConnectionString();
+
+        isSuccess = UserProfile.ForgotPassword(emailId, db);
+
+        return isSuccess;
+    }
+
+    [WebMethod]
+    public static bool FollowTags(long userId, string tags, bool isFollow)
+    {
+        bool isSuccess = false;
+
+        string db = GetConnectionString();
+
+        isSuccess = UserProfile.SubscribeTags(userId, tags, isFollow, db);
+
+        return isSuccess;
+    }
+
+    //profile page
+    [System.Web.Services.WebMethod]
+    public static Array GetUserLooks(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "looks", db, offset, limit, viewerId);
+
+        return profileInfo.ToArray();
+        
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetUserProfileInfo(long userId, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "profile", db, 1, 1, viewerId);
+
+        return profileInfo.ToArray();
+
+    }
+    
+    [System.Web.Services.WebMethod]
+    public static Array GetUserGarments(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "items", db, offset, limit, viewerId);
+
+        return profileInfo.ToArray();// SerializationHelper.ToJSONString(typeof(Dictionary<string, List<object>>), profileInfo);
+
+    }
+    
+    [System.Web.Services.WebMethod]
+    public static Array GetUserHearts(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "hearts", db, offset, limit, viewerId);
+
+        return profileInfo.ToArray();
+
+    }
+    
+    [System.Web.Services.WebMethod]
+    public static Array GetUserFollowers(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "followers", db, offset, limit, viewerId);
+
+        return profileInfo.ToArray();
+
+    }
+    [System.Web.Services.WebMethod]
+    public static Array GetUserFollowings(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "following", db, offset, limit, viewerId);
+
+        return profileInfo.ToArray();
+
+    }
+    
+    [WebMethod]
+    public string ProfileImagePost(long userId, HttpPostedFile profileImage)
+    {
+        string[] extensions = { ".jpg", ".jpeg", ".gif", ".bmp", ".png" };
+        if (!extensions.Any(x => x.Equals(Path.GetExtension(profileImage.FileName.ToLower()), StringComparison.OrdinalIgnoreCase)))
+        {
+            return "Invalid file type.";
+        }
+
+        string imageFilePath = Path.Combine(HttpContext.Current.Server.MapPath("images/users"), userId + Path.GetExtension(profileImage.FileName.ToLower()));
+
+        profileImage.SaveAs(imageFilePath);
+
+        return imageFilePath;
+    }
+
+    [WebMethod]
+    public static Array GetTopBrands()
+    {
+        string db = GetConnectionString();
+        List<Brand> topBrands = Brands.GetTopBrands(db);
+
+        return topBrands.ToArray();
+    }
+
+    [WebMethod]
+    public static Array GetLikers(long lookId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> likers = Look.GetLikers(db, lookId, offset, limit);
+        return likers.ToArray();
+    }
+
+    [WebMethod]
+    public static Array GetReStylers(long lookId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> reStylers = Look.GetReStylers(db, lookId, offset, limit);
+        return reStylers.ToArray();
+    }
+
+    [WebMethod]
+    public static Array GetLikersandRestylers(long lookId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        List<LightUser> users = Look.GetLikersandRestylers(db, lookId, offset, limit);
+        return users.ToArray();
+    }
+
+    [WebMethod]
+    public static Array GetComments(long lookId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        List<Comment> comments = Comment.GetComments(db, lookId, offset, limit);
+        return comments.ToArray();
+    }
+
+    [WebMethod]
+    public static bool DeleteComment(long userId, long lookId, long commentId)
+    {
+
+        string db = GetConnectionString();
+
+        bool isSuccess = Comment.DeleteComment(db, userId, lookId, commentId);
+
+        return isSuccess;
+    }
+    [WebMethod]
+    public static bool AddComment(long userId, long lookId, string comment)
+    {
+
+        string db = GetConnectionString();
+
+        bool isSuccess = Comment.AddComment(userId, lookId, comment, db) ;
+
+        return isSuccess;
+    }
 
     //helper function to send notification
     private delegate void NotificationDelegete(long lookId, long userId, string accessToken, bool isHeart);
@@ -378,7 +802,6 @@ public partial class WebServices : System.Web.UI.Page
 
     private delegate void FollowNotificationDelegete(long subscriberId, long userId, string accessToken, bool isSubscribe);
     private static FollowNotificationDelegete followNotification;
-
    
     public static void SendNotifications(long lookId, long userId, string appAccessToken, bool isHeart)
     {
@@ -398,7 +821,7 @@ public partial class WebServices : System.Web.UI.Page
 
                 try
                 {
-                    if (UserProfile.IsFriend(look.creator.id, user.facebookId))
+                    if (UserProfile.IsFriend(look.creator.userId, user.facebookId))
                     {
                         //Send the notification only if the user is creator's friend
                         appAccessToken = FacebookHelper.SendNotification(appAccessToken, look.creator.facebookId, user.facebookId, look);
@@ -440,9 +863,6 @@ public partial class WebServices : System.Web.UI.Page
             }
         }
     }
-
-
-
 
 }
 

@@ -27,7 +27,7 @@ public partial class settings : BasePage
         userImage.ImageUrl = user.pic;
         HyperLink userName = (HyperLink)this.Master.FindControl("UserName");
         userName.Text = user.name;
-        userName.NavigateUrl = "user.aspx?uid=" + user.id;
+        userName.NavigateUrl = "user.aspx?uid=" + user.userId;
 
         Label userPoints = (Label)this.Master.FindControl("UserPoints");
         userPoints.Text = user.points.ToString() + " votes";

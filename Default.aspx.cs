@@ -142,7 +142,7 @@ namespace ShopSenseDemo
             SetOGTags();
 
             //set top user bar
-            userIdOrg = user.id;
+            userIdOrg = user.userId;
             //System.Web.UI.WebControls.Image userImage = (System.Web.UI.WebControls.Image)this.Master.FindControl("UserImage");
             //HyperLink userName = (HyperLink)this.Master.FindControl("UserName");
             //Label userPoints = (Label)this.Master.FindControl("UserPoints");
@@ -152,7 +152,7 @@ namespace ShopSenseDemo
             {
                 UserImage.ImageUrl = user.pic;
                 UserName.Text = user.name;
-                UserName.NavigateUrl = "user.aspx?uid=" + user.id;
+                UserName.NavigateUrl = "user.aspx?uid=" + user.userId;
                 UserPoints.Text = user.points.ToString() + " votes";
             }
             else
@@ -166,18 +166,18 @@ namespace ShopSenseDemo
             }
 
             //anonymous view show the dialogue
-            if (user.id == 0)
+            if (user.userId == 0)
             {
                 hdnchkuser.Value = "0";
             }
             else
             {
-                 hdnchkuser.Value = user.id.ToString();
+                 hdnchkuser.Value = user.userId.ToString();
             }
 
             //Let's set the sharing metadata
             UserShare.Text = this.user.IsPrivate ? "0" : "1";
-            UserId.Text = this.user.id.ToString();
+            UserId.Text = this.user.userId.ToString();
 
             //string tagId = Request.QueryString["tagid"];
             ////Let's get the sets and display them

@@ -97,7 +97,7 @@ public partial class ProductPage : BasePage
         {
             this.user = this.Session["user"] as UserProfile;
             UserProfile user = this.Session["user"] as UserProfile;
-            this.UserId.Text = user.id.ToString();
+            this.UserId.Text = user.userId.ToString();
         }
         else
         {

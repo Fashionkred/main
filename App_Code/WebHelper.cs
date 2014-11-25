@@ -405,45 +405,71 @@ public class WebHelper
         {
             string imageUrl = look.products[i].isCover ? look.products[i].GetImageUrl() : look.products[i].GetThumbnailUrl();
             var request = WebRequest.Create(imageUrl);
-        
-            using (var response = request.GetResponse())
-            using (var stream = response.GetResponseStream())
-            {
-                lookImages.Add(System.Drawing.Image.FromStream(stream));
-            }
 
-            if (!string.IsNullOrEmpty(look.products[i].swatchUrl))
+            try
             {
-                var sRequest = WebRequest.Create(look.products[i].swatchUrl);
-
-                using (var response = sRequest.GetResponse())
+                using (var response = request.GetResponse())
                 using (var stream = response.GetResponseStream())
                 {
-                    swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                    if (look.products[i].isCover)
+                    {
+                        lookImages.Insert(0, System.Drawing.Image.FromStream(stream));
+                    }
+                    else
+                    {
+                        lookImages.Add(System.Drawing.Image.FromStream(stream));
+                    }
                 }
-            }
-            else
-            {
-                //Bitmap bit = new Bitmap(1,1);
-                //using (Graphics g = Graphics.FromImage(bit))
-                //{
-                //    Brush brush = GetColorBrush(look.products[i].GetColor());
 
-                //    g.FillRectangle(brush, 0, 0, bit.Width, bit.Height);
-                //}
-
-                //swatchImages.Add(bit);
-                var sRequest = WebRequest.Create(look.products[i].GetThumbnailUrl());
-
-                using (var response = sRequest.GetResponse())
-                using (var stream = response.GetResponseStream())
+                if (!string.IsNullOrEmpty(look.products[i].swatchUrl))
                 {
-                    swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                    var sRequest = WebRequest.Create(look.products[i].swatchUrl);
+
+                    using (var response = sRequest.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    {
+                        if (look.products[i].isCover)
+                        {
+                            swatchImages.Insert(0, System.Drawing.Image.FromStream(stream));
+                        }
+                        else
+                        {
+                            swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                        }
+                    }
+                }
+                else
+                {
+                    //Bitmap bit = new Bitmap(1,1);
+                    //using (Graphics g = Graphics.FromImage(bit))
+                    //{
+                    //    Brush brush = GetColorBrush(look.products[i].GetColor());
+
+                    //    g.FillRectangle(brush, 0, 0, bit.Width, bit.Height);
+                    //}
+
+                    //swatchImages.Add(bit);
+                    var sRequest = WebRequest.Create(look.products[i].GetThumbnailUrl());
+
+                    using (var response = sRequest.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    {
+                        swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                    }
                 }
             }
+            catch { }
         }
+        int colorBarWidth = 10;
+        int lookPanelWidth = lookImages[0].Width + lookImages[1].Width + colorBarWidth + 6;
+        int lookPanelHeight = Math.Max(lookImages[0].Height, lookImages[1].Height);
+        
+        if (lookImages.Count > 2)
+            lookPanelHeight = Math.Max(lookImages[0].Height, lookImages[1].Height + lookImages[2].Height + 4);
+        if (lookImages.Count > 3)
+            lookPanelHeight = Math.Max(lookPanelHeight, lookImages[1].Height + lookImages[2].Height + lookImages[3].Height + 8);
 
-        Bitmap bitmap = new Bitmap(lookImages[0].Width + lookImages[1].Width + 32, Math.Max(lookImages[0].Height, lookImages[1].Height + lookImages[2].Height) + 20);
+        Bitmap bitmap = new Bitmap(lookPanelWidth, lookPanelHeight);
 
         //bitmap.MakeTransparent();
         using (Graphics g = Graphics.FromImage(bitmap))
@@ -453,22 +479,30 @@ public class WebHelper
             //bitmap = new Bitmap(RoundCorners(bitmap, cornerRadius));
 
             //Add the color bar
-            int colorBarHeight = (bitmap.Height - 5*look.products.Count()) / look.products.Count();
-            int colorBarWidth = 12;
+            int colorBarHeight = (bitmap.Height - 5 *(lookImages.Count()-1)) / lookImages.Count();
             for (int i = 0; i < swatchImages.Count(); i++)
             {
                 Bitmap bits = new Bitmap(swatchImages[i]);
                 SolidBrush brush = new SolidBrush(getDominantColor(bits));
-                g.FillRectangle(brush, 4, 5+ i * (colorBarHeight + 5), colorBarWidth, colorBarHeight);
+                g.FillRectangle(brush, 3, i * (colorBarHeight +5), colorBarWidth, colorBarHeight);
             }
             
 
         }
         using (Graphics g = Graphics.FromImage(bitmap))
         {
-            g.DrawImage(lookImages[0], 16, 18);
-            g.DrawImage(lookImages[1], lookImages[0].Width + 24, 16);
-            g.DrawImage(lookImages[2], lookImages[0].Width + 24, lookImages[1].Height + 24);
+            g.DrawImage(lookImages[0], 15, 0);
+            g.DrawImage(lookImages[1], lookImages[0].Width + 18, 0);
+            
+            if (lookImages.Count > 2)
+            {
+                g.DrawImage(lookImages[2], lookImages[0].Width + 18, lookImages[1].Height + 4);
+            }
+
+            if (lookImages.Count > 3)
+            {
+                g.DrawImage(lookImages[3], lookImages[0].Width + 18, lookImages[1].Height + lookImages[2].Height + 8);
+            }
         }
 
         bitmap.Save(imageFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);

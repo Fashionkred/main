@@ -27,7 +27,7 @@ public partial class user : BasePage
 
         HtmlMeta url = new HtmlMeta();
         url.Attributes.Add("property", "og:url");
-        url.Content = "http://fashionKred.com/user.aspx?uid=" + reqUser.id;
+        url.Content = "http://fashionKred.com/user.aspx?uid=" + reqUser.userId;
         Master.FindControl("head").Controls.Add(url);
 
         HtmlMeta image = new HtmlMeta();
@@ -70,7 +70,7 @@ public partial class user : BasePage
             {
                 long reqId = long.Parse(Request.QueryString["uid"].ToString());
 
-                if (this.user.id == reqId)
+                if (this.user.userId == reqId)
                 {
                     this.reqUser = this.user;
                 }
@@ -103,7 +103,7 @@ public partial class user : BasePage
         if (Request.UserAgent == "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)")
             return;
 
-        this.CreatorId.Text = reqUser.id.ToString();
+        this.CreatorId.Text = reqUser.userId.ToString();
         
         //hide the contest bar
         Panel ContestBar = (Panel)this.Master.FindControl("ContestBar");
@@ -117,13 +117,13 @@ public partial class user : BasePage
         Panel dropDown = (Panel)this.Master.FindControl("DropDown");
         if (this.user != null)
         {
-            userName.NavigateUrl = "user.aspx?uid=" + user.id;
+            userName.NavigateUrl = "user.aspx?uid=" + user.userId;
 
-            this.userId = user.id;
+            this.userId = user.userId;
         
             if (reqUser == this.user)
                 isOWner = true;
-            this.UserId.Text = this.user.id.ToString();
+            this.UserId.Text = this.user.userId.ToString();
 
             userImage.ImageUrl = user.pic;
             userName.Text = user.name;
@@ -166,17 +166,17 @@ public partial class user : BasePage
         //set subscribe button
         if (user == reqUser)
             SubscribePanel.Visible = false;
-        else if (UserProfile.IsFollower(reqUser.id, user.id, db))
+        else if (UserProfile.IsFollower(reqUser.userId, user.userId, db))
         {
             SubscribePanel.CssClass += " following";
             Subscribe.Text = "Following";
         }
 
         //set up the top header link
-        SetsLink.NavigateUrl = "user.aspx?uid=" + reqUser.id + "&view=sets";
-        LovesLink.NavigateUrl = "user.aspx?uid=" + reqUser.id + "&view=loves";
-        FollowersLink.NavigateUrl = "user.aspx?uid=" + reqUser.id + "&view=followers";
-        FollowingLink.NavigateUrl = "user.aspx?uid=" + reqUser.id + "&view=following";
+        SetsLink.NavigateUrl = "user.aspx?uid=" + reqUser.userId + "&view=sets";
+        LovesLink.NavigateUrl = "user.aspx?uid=" + reqUser.userId + "&view=loves";
+        FollowersLink.NavigateUrl = "user.aspx?uid=" + reqUser.userId + "&view=followers";
+        FollowingLink.NavigateUrl = "user.aspx?uid=" + reqUser.userId + "&view=following";
 
         string view = "sets";
 
@@ -185,7 +185,7 @@ public partial class user : BasePage
             view = Request.QueryString["view"].ToString();
         }
 
-        Dictionary<string, List<object>> results = GetResults(db, view, reqUser.id, user.id);
+        Dictionary<string, List<object>> results = GetResults(db, view, reqUser.userId, user.userId);
         switch (view)
         {
             case "sets":
@@ -382,7 +382,7 @@ public partial class user : BasePage
                 Pinterest.Controls.Add(new Literal
                 {
                     Text = "<a target=\"_blank\"  href=\"create.aspx?lid=" + look.id + "\"><img src=\"images/create-btn.png\" alt=\"Create a look\" /></a>" + 
-                        "<a class=\"OutBoundLink\" target=\"_blank\" href=\"//pinterest.com/pin/create/button/?url=" + HttpUtility.UrlEncode("http://fashionkred.com/look.aspx?lid=" + look.id + "&ref=" + user.id) +
+                        "<a class=\"OutBoundLink\" target=\"_blank\" href=\"//pinterest.com/pin/create/button/?url=" + HttpUtility.UrlEncode("http://fashionkred.com/look.aspx?lid=" + look.id + "&ref=" + user.userId) +
                         "&media=" + HttpUtility.UrlEncode(lookImg.ImageUrl) + "&description=" + HttpUtility.UrlEncode("Found this look at Fashionkred!") + "\"> " +
                         "<img src=\"images/pinterest_pin-it_icon.png\" alt=\"Pin It\" title=\"Pin on Pinterest\" style=\"height:24px;\" /></a>"
                 });
@@ -446,7 +446,7 @@ public partial class user : BasePage
 
                 sharePanel.Controls.Add(new Literal
                 {
-                    Text = "<a  class=\"OutBoundLink\" target=\"_blank\" href=\"//pinterest.com/pin/create/button/?url=" + HttpUtility.UrlEncode("http://fashionkred.com/product.aspx?pid=" + pdt.id + "&ref=" + user.id) +
+                    Text = "<a  class=\"OutBoundLink\" target=\"_blank\" href=\"//pinterest.com/pin/create/button/?url=" + HttpUtility.UrlEncode("http://fashionkred.com/product.aspx?pid=" + pdt.id + "&ref=" + user.userId) +
                         "&media=" + HttpUtility.UrlEncode(pdtImg.ImageUrl) + "&description=" + HttpUtility.UrlEncode(pdt.name) + "\"> " +
                         "<img src=\"images/pinterest_pin-it_icon.png\" alt=\"Pin It\" title=\"Pin on Pinterest\" style=\"height:24px;\" /></a>"
                 });
@@ -483,7 +483,7 @@ public partial class user : BasePage
                 Panel userImage = new Panel();
                 userImage.Style.Add("display", "inline");
                 HyperLink userLink = new HyperLink();
-                userLink.NavigateUrl = "user.aspx?uid="  + user.id;
+                userLink.NavigateUrl = "user.aspx?uid="  + user.userId;
 
                 System.Web.UI.WebControls.Image userImg = new System.Web.UI.WebControls.Image();
 
@@ -500,12 +500,12 @@ public partial class user : BasePage
                 HyperLink userTile = new HyperLink();
                 userTile.CssClass = "pdtTitle";
                 userTile.Text = user.name;
-                userTile.NavigateUrl = "user.aspx?uid=" + user.id;
+                userTile.NavigateUrl = "user.aspx?uid=" + user.userId;
                 titlePanel.Controls.Add(userTile);
                 userPanel.Controls.Add(titlePanel);
 
                 //add subscribe panel
-                if (this.userId != user.id)
+                if (this.userId != user.userId)
                 {
                     Panel followPanel = new Panel();
                     followPanel.CssClass = "userActionLinks";
@@ -515,13 +515,13 @@ public partial class user : BasePage
                     if (user.IsFollowing == 0)
                     {
                         followLink.Text = "Follow";
-                        followLink.NavigateUrl = "subscribe.aspx?uid=" + this.userId + "&sid=" + user.id + "&subscribe=1&redirect=" + "user.aspx?uid=" + user.id;
+                        followLink.NavigateUrl = "subscribe.aspx?uid=" + this.userId + "&sid=" + user.userId + "&subscribe=1&redirect=" + "user.aspx?uid=" + user.userId;
                     }
                     if (user.IsFollowing == 1)
                     {
                         followLink.Text = "Unfollow";
                         followLink.Style.Add("color", "#ccc");
-                        followLink.NavigateUrl = "subscribe.aspx?uid=" + this.userId + "&sid=" + user.id + "&subscribe=0&redirect=" + "user.aspx?uid=" + user.id;
+                        followLink.NavigateUrl = "subscribe.aspx?uid=" + this.userId + "&sid=" + user.userId + "&subscribe=0&redirect=" + "user.aspx?uid=" + user.userId;
                     }
                     followPanel.Controls.Add(followLink);
                     userPanel.Controls.Add(followPanel);

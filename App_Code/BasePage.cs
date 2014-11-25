@@ -40,7 +40,7 @@ namespace ShopSenseDemo
 
 
             //Get the fb-connected user id
-            if (user.id == 0)
+            if (user.userId == 0)
             {
                 //Check if it's the fb Crawler then skip authentication
                 if (Request.UserAgent == "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)")
@@ -81,19 +81,19 @@ namespace ShopSenseDemo
                             }
                             string ipAddress = WebHelper.GetIpAddress(this.Request);
                             string userAgent = this.Request.UserAgent.ToString();
-                            user = FacebookHelper.GetUser(Request.QueryString["code"], userReferral, ipAddress, userAgent, db);
+                            user = FacebookHelper.GetUser(Request.QueryString["code"], userReferral, db);
                             this.Session["access_token"] = user.accessToken;
                             this.Session["user"] = user;
                             
                             // create user cookie
                             HttpCookie userid = new HttpCookie("__userid");
-                            userid.Value = user.id.ToString();
+                            userid.Value = user.userId.ToString();
                             userid.Expires = DateTime.UtcNow.AddDays(14);
                             Response.Cookies.Add(userid);
 
                             // create authentication cookie
                             HttpCookie auth = new HttpCookie("__auth");
-                            auth.Value = WebHelper.CreateAuthString(user.id);
+                            auth.Value = WebHelper.CreateAuthString(user.userId);
                             auth.Expires = DateTime.UtcNow.AddDays(14);
                             Response.Cookies.Add(auth);
 

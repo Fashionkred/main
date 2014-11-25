@@ -50,7 +50,7 @@ public partial class subscribe : System.Web.UI.Page
         if (this.Session["user"] != null)
         {
             UserProfile user = this.Session["user"] as UserProfile;
-            if (user.id != this.userId)
+            if (user.userId != this.userId)
             {
                 SubscribeStatusMessage message = new SubscribeStatusMessage() { ErrorMessage = "Sorry, we\'ve encountered an unknown error.<br />Please try again." };
                 string callbackName = Request.QueryString["callback"];

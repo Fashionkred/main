@@ -33,7 +33,7 @@ namespace ShopSenseDemo
             return url;
         }
 
-        public static UserProfile GetUser(string code, string referral,string ipAddress, string userAgent, string db)
+        public static UserProfile GetUser(string code, string referral, string db)
         {
             var client = new FacebookClient();
             client.AppId = appId;
@@ -58,10 +58,8 @@ namespace ShopSenseDemo
                 user.facebookId = long.Parse(result.id);
                 user.name = result.name;
                 user.locale = result.locale;
-                user.sex = (result.gender == "female" ? Sex.Female : Sex.Male);
+                user.gender = (result.gender == "female" ? Sex.Female : Sex.Male);
                 user.Referral = referral;
-                user.ipAddress = ipAddress;
-                user.userAgent = userAgent;
                 user.pic = "https://graph.facebook.com/" + user.facebookId + "/picture?width=50&height=50";
 
                 //extended perm
@@ -69,7 +67,7 @@ namespace ShopSenseDemo
                     user.location = result.location.name;
                     
                 if (result.email != null)
-                    user.email = result.email;
+                    user.emailId = result.email;
 
                 user.facebookFriends = new List<long>();
                 if (result.friends != null)
@@ -110,14 +108,14 @@ namespace ShopSenseDemo
                 user.facebookId = long.Parse(result.id);
                 user.name = result.name;
                 user.locale = result.locale;
-                user.sex = (result.gender == "female" ? Sex.Female : Sex.Male);
+                user.gender = (result.gender == "female" ? Sex.Female : Sex.Male);
 
                 //extended perm
                 if (result.location != null)
                     user.location = result.location.name;
                 
                 if (result.email != null)
-                    user.email = result.email;
+                    user.emailId = result.email;
 
                 user.facebookFriends = new List<long>();
                 if (result.friends != null)
@@ -155,7 +153,7 @@ namespace ShopSenseDemo
             user.facebookId = long.Parse(result.id);
             user.name = result.name;
             user.locale = result.locale;
-            user.sex = (result.gender == "female" ? Sex.Female : Sex.Male);
+            user.gender = (result.gender == "female" ? Sex.Female : Sex.Male);
 
             //extended perm
             if (result.location != null)
@@ -163,7 +161,7 @@ namespace ShopSenseDemo
             if (result.picture != null)
                 user.pic = result.picture.data.url;
             if (result.email != null)
-                user.email = result.email;
+                user.emailId = result.email;
             if (result.friends != null)
             {
                 user.facebookFriends = new List<long>();
@@ -236,7 +234,7 @@ namespace ShopSenseDemo
 
             var parameters = new Dictionary<string, object>
         {
-             { "href" ,  "/user.aspx?uid=" + user.id },
+             { "href" ,  "/user.aspx?uid=" + user.userId },
              { "template" ,  templateString },
              { "ref" ,  "follownotifications" }
         };

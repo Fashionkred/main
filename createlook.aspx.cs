@@ -48,7 +48,7 @@ public partial class createlook : System.Web.UI.Page
         if (this.Session["user"] != null)
         {
             UserProfile user = this.Session["user"] as UserProfile;
-            if(user.id != this.userId)
+            if(user.userId != this.userId)
             {
                 LookMessage message = new LookMessage() { ErrorMessage = "Sorry, we\'ve encountered an unknown error.<br />Please try again." };
                 Response.Write(SerializationHelper.ToJSONString(typeof(LookMessage), message));
@@ -244,7 +244,7 @@ public partial class createlook : System.Web.UI.Page
         if (look.creator.facebookId > 0)
         {
             //Get look's creator's follower's facebook ids
-            List<long> followerIds = UserProfile.GetUserFollowersFacebookIds(look.creator.id, db);
+            List<long> followerIds = UserProfile.GetUserFollowersFacebookIds(look.creator.userId, db);
 
             //Post a fb notification to user's followers that user has posted a look
             foreach (long followerId in followerIds)
