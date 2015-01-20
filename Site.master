@@ -94,10 +94,10 @@
         
             <div class="header-wrapper">
 			     <div class="logo">
-				    <a href="default.aspx" title="FashionKred"><img src="images/logo.png" alt="FashionKred" title="FashionKred"></a>
+				    <a href="/" title="Cult Collection"><img src="identity.png" alt="FashionKred" title="FashionKred"></a>
 			    </div>
 
-                <asp:Panel ID="UserDiv" runat="server" >
+                <%--<asp:Panel ID="UserDiv" runat="server" >
 			    <asp:Panel ID="DropDown" runat="server" class="dropdown">
 				    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="images/menu_dropdown.png"></a>
 				    <ul class="dropdown-menu">
@@ -135,25 +135,25 @@
 
 			        <div class="sub-text">
 				        <b><asp:Label ID="ContestString" runat="server"></asp:Label></b></br> 
-				        <%--<strong><asp:Label ID="ContestSubString" runat="server"></asp:Label></strong>--%>
+				        <strong><asp:Label ID="ContestSubString" runat="server"></asp:Label></strong>
 			        </div>
                 </asp:Panel>
 		    </div>
             <asp:Panel runat="server" ID="ContestBar" CssClass="contest-bar">
               
-            </asp:Panel>
+            </asp:Panel>--%>
         <div class="main">
             <asp:ContentPlaceHolder ID="MainContent" runat="server"/>
         </div>
 
         <div class="footer">
-		<div class="footer-brand">© 2013 FashionKred</div>
+		<div class="footer-brand">© 2014-2015 Cult Collection</div>
 		<div class="footer-menu">
 			<a target="_blank" class="footer-text" href="privacy.aspx" title="Privacy">Privacy </a>&#183;
 			<a target="_blank" class="footer-text" href="TOU.aspx" title="Terms">Terms </a>&#183;
-			<a target="_blank" class="footer-text" href="http://www.facebook.com/Fashionkred" title="Facebook Page">Facebook</a>&#183;
-			<a target="_blank" class="footer-text" href="http://pinterest.com/fashionkred/" title="Pinterest">Pinterest</a>&#183;
-			<a target="_blank" class="footer-text" href="http://twitter.com/fashionkred" title="Twitter">Twitter </a>		
+			<a target="_blank" class="footer-text" href="http://www.facebook.com/CultCollection" title="Facebook">Facebook</a>&#183;
+			<a target="_blank" class="footer-text" href="http://pinterest.com/CultCollection/" title="Pinterest">Pinterest</a>&#183;
+			<a target="_blank" class="footer-text" href="http://twitter.com/Cult_Collection" title="Twitter">Twitter </a>		
 		</div>
 	</div>
     </div>

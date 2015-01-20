@@ -1,0 +1,271 @@
+
+body.dark_back
+{
+	background-color: #000000;	
+}
+
+body.light_back
+{
+	background-color: #ffffff;	
+}
+
+.body_copy
+{
+	display: block; 
+	margin-left: auto; margin-right: auto;	
+	text-align: center;
+}
+
+.a
+{
+	color: #ffffff;
+	text-decoration: none;
+}
+
+.table
+{
+	border: none; margin: none; padding: none;
+}
+
+.td
+{
+	border: none; margin: none; padding: none;
+}
+
+.orange
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:15pt; font-weight:300; 
+	color:#f05f22;
+	text-align: center;
+}
+
+.pink
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:15pt; font-weight:300; 
+	color:#d018b6;
+	text-align: center;
+}
+
+.dark_gray
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:14pt; font-weight:300; 
+	line-height:18pt; 
+	color:#808080;
+	text-align: center;
+}
+
+.light_gray
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:14pt; font-weight:300; 
+	line-height:18pt; 
+	color:#cccccc;
+	text-align: center;
+}
+
+.white
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:14pt; font-weight:300; 
+	line-height:18pt; 
+	color:#ffffff;
+	text-align: center;
+}
+
+.feature_text
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:14pt; font-weight:300; 
+	line-height:18pt; 
+	color:#ffffff;
+	text-align: center;
+}
+
+.generic_text_container
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:10pt; font-weight:300; 
+	color:#808080;
+	line-height: 150%;
+	text-align: left;
+	width: 720px;
+	margin-left: auto; margin-right: auto;	
+}
+
+#header
+{
+	display: block;
+	width: 960px;
+	top: 0px;
+	margin-left: auto; margin-right: auto;	
+}
+
+#identity
+{
+	display: block;
+	width: 100px; height: 100px; 
+	top: 0px;
+	margin-left: auto; margin-right: auto;	
+}
+
+#header_line
+{
+	display: block; position: relative;
+	width: 960px; height: 1px;
+	top: 85px;
+	margin-left: auto; margin-right: auto;	
+}
+
+#welcome
+{
+	display: block;
+	top: 120px;
+	z-index: 1;
+	margin-left: auto; margin-right: auto;	
+}
+
+#features
+{
+	display: block;
+	width: 960px;
+	z-index: 2;
+	margin-left: auto; margin-right: auto;	
+}
+
+.feature_image
+{
+	display: block;
+	border: none;
+	width: 230px; height: 280px;
+	margin-left: auto; margin-right: auto;	
+}
+
+.feature_text_cell
+{
+	vertical-align: top;
+	width: 240px;
+	padding: 0px 15px;
+}
+
+#runway
+{
+	display: block;
+	margin-left: auto; margin-right: auto;	
+}
+
+#runway_image
+{
+	display: block; position: absolute;
+	z-index: -1; 
+	width: 1200px; height: 330px;
+	top: 490px; 
+}
+
+#app_store_area
+{
+	display: block; position: absolute;
+	width: 100%;
+	top: 820px;
+	background-color: #ffffff;
+}
+
+#download_button
+{
+	display: block;
+	width: 135px;
+	margin-left: auto; margin-right: auto;	
+}
+
+#download_image
+{
+	display: block;
+	border: none;
+	width: 135px; height: 40px;
+}
+
+#screenshots
+{
+	display: block;
+	width: 870px;
+	margin-left: auto; margin-right: auto;	
+}
+
+.screenshot_cell
+{
+	vertical-align: top;
+}
+
+.screenshot_image
+{
+	display: block;
+	border: 1px solid #cccccc;
+	width: 256px; height: 192px;
+	margin: 0px 15px 30px;
+}
+
+
+#email_form
+{
+	width: 550px;
+	margin-left: auto; margin-right: auto;	
+}
+
+.form_field
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:14pt; font-weight:300; 
+	color:#666666;
+	width: 390px; height:36px;
+	background: #eeeeee; border: none; border-radius: 18px;
+	padding-left: 20px; 
+	margin: 0px 0px 15px;
+}
+
+.form_button
+{
+	font-family: "futura-pt", Helvetica, Arial, sans-serif; 
+	font-size:14pt; font-weight:300; 
+	color:#ffffff;
+	width: 150px; height:36px;
+	background: #9ab13b; border: none; border-radius: 18px; 
+	margin: 10px 0px;
+}
+
+#footer_area
+{
+	display: block; position: absolute;
+	width: 100%;
+	top: 2700px;
+	background-image: url("images/1024x768_dark_.png");
+}
+
+#footer_area_floating
+{
+	display: block; position: absolute;
+	width: 100%;
+	background-image: url("images/1024x768_dark_.png");
+}
+
+#social
+{
+	display: block;
+	width: 310px;
+	margin-left: auto; margin-right: auto;	
+}
+
+.social_image
+{
+	display: block;
+	border: 0px;
+	width: 40px; height: 40px;
+	margin: 0px 10px 10px;
+}
+
+
+
+
+
+

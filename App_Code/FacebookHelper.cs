@@ -211,6 +211,40 @@ namespace ShopSenseDemo
 
         }
 
+        public static string SendRestyleNotification(string appAccessToken, long creatorId, long userId, Look look)
+        {
+            var client = new FacebookClient();
+            client.AppId = appId;
+            client.AppSecret = appSecret;
+
+            if (string.IsNullOrEmpty(appAccessToken))
+            {
+                dynamic response = client.Get("oauth/access_token",
+                new
+                {
+                    client_id = appId,
+                    client_secret = appSecret,
+                    grant_type = "client_credentials"
+                });
+                appAccessToken = response.access_token;
+            }
+
+            string path = "/" + creatorId + "/notifications?access_token=" + appAccessToken;
+            string templateString = "@[" + userId + "] restyled your look in FashionKred!";
+
+            var parameters = new Dictionary<string, object>
+        {
+             { "href" ,  "/look.aspx?lid=" + look.id },
+             { "template" ,  templateString },
+             { "ref" ,  "votenotifications" }
+        };
+
+            client.Post(path, parameters);
+
+            return appAccessToken;
+
+        }
+
         public static string SendFollowNotification(string appAccessToken, long creatorId, UserProfile user)
         {
             var client = new FacebookClient();

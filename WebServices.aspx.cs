@@ -37,6 +37,20 @@ public partial class WebServices : System.Web.UI.Page
         return db;
     }
 
+    //helper function to send notification
+    private delegate void NotificationDelegete(long lookId, long userId, string accessToken, bool isHeart);
+    private static NotificationDelegete notifications;
+
+    private delegate void ReStyleNotificationDelegete(long lookId, long originalLookId, long userId, string accessToken);
+    private static ReStyleNotificationDelegete restyleNotifications;
+
+    private delegate void FollowNotificationDelegete(long subscriberId, long userId, string accessToken, bool isSubscribe);
+    private static FollowNotificationDelegete followNotification;
+
+    private delegate void CommentNotificationDelegete(long lookId, long userId, string accessToken, bool addComment);
+    private static CommentNotificationDelegete commentNotification;
+
+
     //Home page Services
 
     [System.Web.Services.WebMethod]
@@ -120,6 +134,19 @@ public partial class WebServices : System.Web.UI.Page
 
         return tags;
     }
+
+    [System.Web.Services.WebMethod]
+
+    public static Array GetFeaturedTags(long userId)
+    {
+        string db = GetConnectionString();
+
+        Array tags;
+
+        tags = Tag.getFeaturedHashtags(userId, db).ToArray();
+
+        return tags;
+    }
     [System.Web.Services.WebMethod]
 
     public static Array GetTagMetaInfo(long userId, long tagId, int noOfLooks, int noOfItems, int noOfStylists)
@@ -141,7 +168,10 @@ public partial class WebServices : System.Web.UI.Page
         string db = GetConnectionString();
 
         Array looks = Look.GetTaggedLooks(db, userId, tagId, offset, limit, false).ToArray();
-       
+
+        if (looks.Length == 0)
+            looks = null;
+
         return looks;
 
     }
@@ -153,6 +183,9 @@ public partial class WebServices : System.Web.UI.Page
         string db = GetConnectionString();
 
         Array looks = Look.GetTaggedLooks(db,userId, tagId, offset, limit, true).ToArray();
+
+        if (looks.Length == 0)
+            looks = null;
 
         return looks;
     }
@@ -198,15 +231,98 @@ public partial class WebServices : System.Web.UI.Page
         //Save Vote and get the new look
         bool isSuccess = Look.HeartLook(userId, lookId, isHeart, db);
 
-        //Send notifications asynchronously
-        notifications = new NotificationDelegete(SendNotifications);
+        if (isSuccess)
+        {
 
-        string appAccessToken = null;
+            //Send notifications asynchronously
+            notifications = new NotificationDelegete(SendNotifications);
 
-        notifications.BeginInvoke(lookId, userId, appAccessToken, isHeart, null, null);
+            string appAccessToken = null;
+
+            notifications.BeginInvoke(lookId, userId, appAccessToken, isHeart, null, null);
+        }
 
         return isSuccess;
 
+    }
+    public static void SendNotifications(long lookId, long userId, string appAccessToken, bool isHeart)
+    {
+        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+        Look look = Look.GetLookById(lookId, userId, db);
+
+        //no notification for liking your own look
+        if (look.creator.userId == userId)
+            return;
+
+        //save notification in db
+        Notification note = new ShopSenseDemo.Notification(lookId, userId, look.creator.userId, NotificationType.LoveLook);
+
+        if (isHeart)
+            Notification.SaveNotification(note, db);
+        else
+            Notification.DeleteNotification(note, db);
+
+        if (isHeart)
+        {
+            
+            //send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
+            if (look.creator.facebookId > 0)
+            {
+                UserProfile user = UserProfile.GetUserProfileById(userId, db);
+
+                //Post a fb notification that user has loved a vote
+
+                try
+                {
+                    if (UserProfile.IsFriend(look.creator.userId, user.facebookId))
+                    {
+                        //Send the notification only if the user is creator's friend
+                        appAccessToken = FacebookHelper.SendNotification(appAccessToken, look.creator.facebookId, user.facebookId, look);
+                        ///////this.Session["app_access_token"] = appAccessToken;
+                    }
+                }
+                catch (Facebook.FacebookOAuthException ex)
+                {
+                    //Log the oauth exception.
+                }
+            }
+        }
+
+        //send notification to a voter if their friend voted on the same outfit
+    }
+
+
+    [WebMethod]
+    public static void GenImages(long lookIdStart, long lookIdEnd)
+    {
+        string db = GetConnectionString();
+
+        int userId = 0;
+        for (long lookId = lookIdStart; lookId <= lookIdEnd; lookId++)
+        {
+            Look look = Look.GetLookById(lookId, userId, db);
+
+            if (look.id != 0)
+            {
+
+                //set up the image for the combined look
+                try
+                {
+                    string imageFilePath = Path.Combine(HttpContext.Current.Server.MapPath("images/looks"), look.id + ".jpg");
+
+
+                    if (!File.Exists(imageFilePath))
+                    {
+                        WebHelper.CreateLookPanel(look, imageFilePath);
+                    }
+
+                }
+                catch
+                {
+                    //signal to the pinterest pinner that image unavailable?
+                }
+            }
+        }
     }
 
     //Look page servies
@@ -225,20 +341,12 @@ public partial class WebServices : System.Web.UI.Page
         {
             string imageFilePath = Path.Combine(HttpContext.Current.Server.MapPath("images/looks"), look.id + ".jpg");
 
-            if (look.products.Count >= 3)
+            
+            if (!File.Exists(imageFilePath))
             {
-                if (!File.Exists(imageFilePath))
-                {
-                    WebHelper.CreateLookPanel(look, imageFilePath);
-                }
+                WebHelper.CreateLookPanel(look, imageFilePath);
             }
-            else
-            {
-                if (!File.Exists(imageFilePath))
-                {
-                    WebHelper.MergeTwoImages(look.products[0].GetImageUrl(), look.products[1].GetImageUrl(), imageFilePath);
-                }
-            }
+            
         }
         catch
         {
@@ -383,13 +491,93 @@ public partial class WebServices : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static Array SaveLook(long userId, string productMap, string tagMap, string title,  long originalLookId=0, long editLookId=0)
+    public static Array SaveLook(long userId, string productMap, string tagMap, string title, long originalLookId = 0, long editLookId = 0)
     {
 
         string db = GetConnectionString();
 
         List<Look> looks = new List<ShopSenseDemo.Look>();
         Look look = Look.SaveLook(db, productMap, userId, tagMap, title, originalLookId, editLookId);
+        looks.Add(look);
+
+        //set up the image for the combined look
+        try
+        {
+            string imageFilePath = Path.Combine(HttpContext.Current.Server.MapPath("images/looks"), look.id + ".jpg");
+            
+            if (!File.Exists(imageFilePath))
+            {
+                WebHelper.CreateLookPanel(look, imageFilePath);
+            }
+           
+        }
+        catch
+        {
+            //signal to the pinterest pinner that image unavailable?
+        }
+
+
+        if (originalLookId != 0)
+        {
+            //Send notifications asynchronously
+            restyleNotifications = new ReStyleNotificationDelegete(reStyleNotifications);
+
+            string appAccessToken = null;
+
+            restyleNotifications.BeginInvoke(look.id, originalLookId, userId, appAccessToken, null, null);
+        }
+
+        return looks.ToArray();
+    }
+
+    public static void reStyleNotifications(long lookId,long originalLookId, long userId, string appAccessToken)
+    {
+        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+        Look look = Look.GetLookById(originalLookId, userId, db);
+
+        //no notification for restyling your own look
+        if (look.creator.userId == userId)
+            return;
+
+        //save notification in db
+        Notification note = new ShopSenseDemo.Notification(lookId, userId, look.creator.userId, NotificationType.ReStyle);
+        Notification.SaveNotification(note, db);
+        
+
+            ////send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
+            //if (look.creator.facebookId > 0)
+            //{
+            //    UserProfile user = UserProfile.GetUserProfileById(userId, db);
+
+            //    //Post a fb notification that user has loved a vote
+
+            //    try
+            //    {
+            //        if (UserProfile.IsFriend(look.creator.userId, user.facebookId))
+            //        {
+            //            //Send the notification only if the user is creator's friend
+            //            appAccessToken = FacebookHelper.SendNotification(appAccessToken, look.creator.facebookId, user.facebookId, look);
+            //            ///////this.Session["app_access_token"] = appAccessToken;
+            //        }
+            //    }
+            //    catch (Facebook.FacebookOAuthException ex)
+            //    {
+            //        //Log the oauth exception.
+            //    }
+            //}
+      
+    }
+
+
+
+    [WebMethod]
+    public static Array SaveLookByStylists(long userId, string productMap, string tagMap, string title, long originalLookId = 0, long editLookId = 0, bool isFeaturedStylist = false)
+    {
+
+        string db = GetConnectionString();
+
+        List<Look> looks = new List<ShopSenseDemo.Look>();
+        Look look = Look.SaveLook(db, productMap, userId, tagMap, title, originalLookId, editLookId, isFeaturedStylist);
         looks.Add(look);
 
         //set up the image for the combined look
@@ -408,7 +596,7 @@ public partial class WebServices : System.Web.UI.Page
             {
                 if (!File.Exists(imageFilePath))
                 {
-                    WebHelper.MergeTwoImages(look.products[0].GetImageUrl(),look.products[1].GetImageUrl(), imageFilePath);
+                    WebHelper.MergeTwoImages(look.products[0].GetImageUrl(), look.products[1].GetImageUrl(), imageFilePath);
                 }
             }
         }
@@ -416,9 +604,11 @@ public partial class WebServices : System.Web.UI.Page
         {
             //signal to the pinterest pinner that image unavailable?
         }
-        
+
         return looks.ToArray();
     }
+
+
 
     [WebMethod]
     public static Array LoginViaFb(long facebookId)
@@ -427,6 +617,8 @@ public partial class WebServices : System.Web.UI.Page
 
         List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
         UserProfile user = UserProfile.LogInViaFb(facebookId, db);
+
+        WebHelper.SendWelcomeEmail(user.emailId, user.name);
         users.Add(user);
 
         return users.ToArray();
@@ -476,6 +668,15 @@ public partial class WebServices : System.Web.UI.Page
 
         user = UserProfile.SaveOrUpdateUser(user, db);
 
+        if (user.IsNew)
+        {
+            //send welcome email
+            try
+            {
+                WebHelper.SendWelcomeEmail(user.emailId, user.name);
+            }
+            catch { }
+        }
         users.Add(user);
 
         return users.ToArray();
@@ -508,6 +709,16 @@ public partial class WebServices : System.Web.UI.Page
         //}
 
         user = UserProfile.SaveOrUpdateUser(user, db);
+
+        if (user.IsNew)
+        {
+            try
+            {
+                //send welcome email
+                WebHelper.SendWelcomeEmail(user.emailId, user.userName);
+            }
+            catch { }
+        }
 
         users.Add(user);
 
@@ -600,6 +811,42 @@ public partial class WebServices : System.Web.UI.Page
         return isSuccess;
     }
 
+    public static void SendFollowNotifications(long subscriberId, long userId, string appAccessToken, bool isSubscribe)
+    {
+        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+
+        Notification note = new ShopSenseDemo.Notification(0, subscriberId, userId, ShopSenseDemo.NotificationType.FollowUser);
+
+        if (isSubscribe)
+            Notification.SaveNotification(note, db);
+        else
+            Notification.DeleteNotification(note, db);
+
+        //send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
+        if (subscriberId > 0 && isSubscribe)
+        {
+            UserProfile user = UserProfile.GetUserProfileById(userId, db);
+            UserProfile creator = UserProfile.GetUserProfileById(subscriberId, db);
+
+            //Post a fb notification that user has loved a vote
+            if (creator.facebookId > 0)
+            {
+                try
+                {
+                    //Send the notification only if the user is creator's friend
+                    appAccessToken = FacebookHelper.SendFollowNotification(appAccessToken, creator.facebookId, user);
+                    //this.Session["app_access_token"] = appAccessToken;
+
+                }
+                catch (Facebook.FacebookOAuthException ex)
+                {
+                    //Log the oauth exception.
+                }
+            }
+        }
+    }
+
+
     [WebMethod]
     public static bool FollowFbFriends(long userId, string  subscriberFbIds, bool isFollow)
     {
@@ -631,7 +878,19 @@ public partial class WebServices : System.Web.UI.Page
 
         string db = GetConnectionString();
 
-        isSuccess = UserProfile.ForgotPassword(emailId, db);
+        string newPassword = string.Empty;
+        string userName = string.Empty;
+
+        isSuccess = UserProfile.ForgotPassword(emailId, db, out userName, out newPassword);
+
+        if (isSuccess)
+        {
+            try
+            {
+                WebHelper.ForgotPasswordEmail(emailId, userName, newPassword);
+            }
+            catch { }
+        }
 
         return isSuccess;
     }
@@ -782,8 +1041,16 @@ public partial class WebServices : System.Web.UI.Page
         string db = GetConnectionString();
 
         bool isSuccess = Comment.DeleteComment(db, userId, lookId, commentId);
+        if (isSuccess)
+        {
+            commentNotification = new CommentNotificationDelegete(commentNotifications);
 
+            string appAccessToken = null;
+
+            commentNotification.BeginInvoke(lookId, userId, appAccessToken, false, null, null);
+        }
         return isSuccess;
+        
     }
     [WebMethod]
     public static bool AddComment(long userId, long lookId, string comment)
@@ -793,75 +1060,89 @@ public partial class WebServices : System.Web.UI.Page
 
         bool isSuccess = Comment.AddComment(userId, lookId, comment, db) ;
 
+        
+        if(isSuccess)
+        {
+            commentNotification = new CommentNotificationDelegete(commentNotifications);
+
+            string appAccessToken = null;
+
+            commentNotification.BeginInvoke(lookId, userId, appAccessToken, true, null, null);
+        }
+        return isSuccess;
+        
+    }
+
+    public static void commentNotifications(long lookId, long userId, string appAccessToken, bool addComment)
+    {
+        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+        Look look = Look.GetLookById(lookId, userId, db);
+
+        //no notification for restyling your own look
+        if (look.creator.userId == userId)
+            return;
+
+        //save notification in db
+        Notification note = new ShopSenseDemo.Notification(lookId, userId, look.creator.userId, NotificationType.Comment);
+        if (addComment)
+            Notification.SaveNotification(note, db);
+        else
+            Notification.DeleteNotification(note, db);
+
+            ////send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
+            //if (look.creator.facebookId > 0)
+            //{
+            //    UserProfile user = UserProfile.GetUserProfileById(userId, db);
+
+            //    //Post a fb notification that user has loved a vote
+
+            //    try
+            //    {
+            //        if (UserProfile.IsFriend(look.creator.userId, user.facebookId))
+            //        {
+            //            //Send the notification only if the user is creator's friend
+            //            appAccessToken = FacebookHelper.SendNotification(appAccessToken, look.creator.facebookId, user.facebookId, look);
+            //            ///////this.Session["app_access_token"] = appAccessToken;
+            //        }
+            //    }
+            //    catch (Facebook.FacebookOAuthException ex)
+            //    {
+            //        //Log the oauth exception.
+            //    }
+            //}
+      
+    }
+
+
+
+    [WebMethod]
+    public static bool UpdateDeviceToken(long userId, string deviceId, string token)
+    {
+
+        string db = GetConnectionString();
+
+        bool isSuccess = UserProfile.SaveDeviceToken(userId, deviceId, token, db);
+
+        return isSuccess;
+    }
+    [WebMethod]
+    public static bool ReportItem(long userId, long  productId)
+    {
+
+        string db = GetConnectionString();
+
+        bool isSuccess = Product.ReportItem(userId, productId, db);
+
         return isSuccess;
     }
 
-    //helper function to send notification
-    private delegate void NotificationDelegete(long lookId, long userId, string accessToken, bool isHeart);
-    private static NotificationDelegete notifications;
-
-    private delegate void FollowNotificationDelegete(long subscriberId, long userId, string accessToken, bool isSubscribe);
-    private static FollowNotificationDelegete followNotification;
-   
-    public static void SendNotifications(long lookId, long userId, string appAccessToken, bool isHeart)
+    [WebMethod]
+    public static Array GetNotifications(long userId, int offset, int limit)
     {
-        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+        string db = GetConnectionString();
 
-        if (isHeart)
-        {
-
-            Look look = Look.GetLookById(lookId, userId, db);
-
-            //send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
-            if (look.creator.facebookId > 0)
-            {
-                UserProfile user = UserProfile.GetUserProfileById(userId, db);
-
-                //Post a fb notification that user has loved a vote
-
-                try
-                {
-                    if (UserProfile.IsFriend(look.creator.userId, user.facebookId))
-                    {
-                        //Send the notification only if the user is creator's friend
-                        appAccessToken = FacebookHelper.SendNotification(appAccessToken, look.creator.facebookId, user.facebookId, look);
-                        ///////this.Session["app_access_token"] = appAccessToken;
-                    }
-                }
-                catch (Facebook.FacebookOAuthException ex)
-                {
-                    //Log the oauth exception.
-                }
-            }
-        }
-
-        //send notification to a voter if their friend voted on the same outfit
-    }
-
-    public static void SendFollowNotifications(long subscriberId, long userId,string appAccessToken, bool isSubscribe)
-    {
-        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
-
-        //send notification to the creator of the outfit unless the creator is a bot (bot is <=0)
-        if (subscriberId > 0 && isSubscribe)
-        {
-            UserProfile user = UserProfile.GetUserProfileById(userId, db);
-            UserProfile creator = UserProfile.GetUserProfileById(subscriberId, db);
-
-            //Post a fb notification that user has loved a vote
-
-            try
-            {
-                //Send the notification only if the user is creator's friend
-                appAccessToken = FacebookHelper.SendFollowNotification(appAccessToken, creator.facebookId, user);
-                //this.Session["app_access_token"] = appAccessToken;
-
-            }
-            catch (Facebook.FacebookOAuthException ex)
-            {
-                //Log the oauth exception.
-            }
-        }
+        List<Notification> notes = Notification.GetLastNotifications(userId, db, offset, limit);
+        return notes.ToArray();
     }
 
 }

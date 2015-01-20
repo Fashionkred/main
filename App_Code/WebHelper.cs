@@ -12,6 +12,10 @@ using ShopSenseDemo;
 using System.Drawing;
 using System.Net;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using MailChimp;
+using MailChimp.Types;
+using System.Configuration;
 
 /// <summary>
 /// Summary description for WebHelper
@@ -403,21 +407,29 @@ public class WebHelper
         
         for(int i=0; i< look.products.Count(); i++)
         {
-            string imageUrl = look.products[i].isCover ? look.products[i].GetImageUrl() : look.products[i].GetThumbnailUrl();
+            string imageUrl = look.products[i].GetBestImageUrl(look.products[i].GetNormalImageUrl());
             var request = WebRequest.Create(imageUrl);
 
             try
             {
-                using (var response = request.GetResponse())
-                using (var stream = response.GetResponseStream())
+                if (i <= 3 || look.products[i].isCover)
                 {
-                    if (look.products[i].isCover)
+
+                    using (var response = request.GetResponse())
+                    using (var stream = response.GetResponseStream())
                     {
-                        lookImages.Insert(0, System.Drawing.Image.FromStream(stream));
-                    }
-                    else
-                    {
-                        lookImages.Add(System.Drawing.Image.FromStream(stream));
+                        if (look.products[i].isCover)
+                        {
+                            System.Drawing.Image coverImage = System.Drawing.Image.FromStream(stream);
+                            coverImage = byteArrayToImage(resizeImage(coverImage, 150, 230, coverImage.Width, coverImage.Height));
+                            lookImages.Insert(0, coverImage);
+                        }
+                        else
+                        {
+                            System.Drawing.Image thumbImage = System.Drawing.Image.FromStream(stream);
+                            thumbImage = byteArrayToImage(resizeImage(thumbImage, 48, 74, thumbImage.Width, thumbImage.Height));
+                            lookImages.Add(thumbImage);
+                        }
                     }
                 }
 
@@ -440,28 +452,49 @@ public class WebHelper
                 }
                 else
                 {
-                    //Bitmap bit = new Bitmap(1,1);
-                    //using (Graphics g = Graphics.FromImage(bit))
-                    //{
-                    //    Brush brush = GetColorBrush(look.products[i].GetColor());
-
-                    //    g.FillRectangle(brush, 0, 0, bit.Width, bit.Height);
-                    //}
-
-                    //swatchImages.Add(bit);
-                    var sRequest = WebRequest.Create(look.products[i].GetThumbnailUrl());
-
-                    using (var response = sRequest.GetResponse())
-                    using (var stream = response.GetResponseStream())
+                    if (look.products[i].retailerId == 1426) //Nasty Gal
                     {
-                        swatchImages.Add(System.Drawing.Image.FromStream(stream));
+                        Bitmap bit = new Bitmap(1, 1);
+                        using (Graphics g = Graphics.FromImage(bit))
+                        {
+                            Brush brush = GetColorBrush(look.products[i].GetColor());
+
+                            g.FillRectangle(brush, 0, 0, bit.Width, bit.Height);
+                        }
+
+                        if (look.products[i].isCover)
+                        {
+                            swatchImages.Insert(0, bit);
+                        }
+                        else
+                        {
+                            swatchImages.Add(bit);
+                        }
+                    }
+                    else
+                    {
+                        var sRequest = WebRequest.Create(look.products[i].GetThumbnailUrl());
+
+                        using (var response = sRequest.GetResponse())
+                        using (var stream = response.GetResponseStream())
+                        {
+                            if (look.products[i].isCover)
+                            {
+
+                                swatchImages.Insert(0, RemoveBackground(System.Drawing.Image.FromStream(stream)));
+                            }
+                            else
+                            {
+                                swatchImages.Add(RemoveBackground(System.Drawing.Image.FromStream(stream)));
+                            }
+                        }
                     }
                 }
             }
             catch { }
         }
         int colorBarWidth = 10;
-        int lookPanelWidth = lookImages[0].Width + lookImages[1].Width + colorBarWidth + 6;
+        int lookPanelWidth = lookImages[0].Width + lookImages[1].Width + colorBarWidth + 12;
         int lookPanelHeight = Math.Max(lookImages[0].Height, lookImages[1].Height);
         
         if (lookImages.Count > 2)
@@ -479,34 +512,95 @@ public class WebHelper
             //bitmap = new Bitmap(RoundCorners(bitmap, cornerRadius));
 
             //Add the color bar
-            int colorBarHeight = (bitmap.Height - 5 *(lookImages.Count()-1)) / lookImages.Count();
+            int colorBarHeight = (bitmap.Height - 3 *(swatchImages.Count()-1)) / swatchImages.Count();
             for (int i = 0; i < swatchImages.Count(); i++)
             {
-                Bitmap bits = new Bitmap(swatchImages[i]);
+                Bitmap bits = new Bitmap(swatchImages[i]); 
                 SolidBrush brush = new SolidBrush(getDominantColor(bits));
-                g.FillRectangle(brush, 3, i * (colorBarHeight +5), colorBarWidth, colorBarHeight);
+                g.FillRectangle(brush, 3, i * (colorBarHeight +3)+3, colorBarWidth, colorBarHeight);
             }
-            
-
         }
         using (Graphics g = Graphics.FromImage(bitmap))
         {
             g.DrawImage(lookImages[0], 15, 0);
-            g.DrawImage(lookImages[1], lookImages[0].Width + 18, 0);
+            g.DrawImage(lookImages[1], lookImages[0].Width + 17, 0);
             
             if (lookImages.Count > 2)
             {
-                g.DrawImage(lookImages[2], lookImages[0].Width + 18, lookImages[1].Height + 4);
+                g.DrawImage(lookImages[2], lookImages[0].Width + 17, lookImages[1].Height + 4);
             }
 
             if (lookImages.Count > 3)
             {
-                g.DrawImage(lookImages[3], lookImages[0].Width + 18, lookImages[1].Height + lookImages[2].Height + 8);
+                g.DrawImage(lookImages[3], lookImages[0].Width + 17, lookImages[1].Height + lookImages[2].Height + 8);
             }
         }
 
         bitmap.Save(imageFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);
 
+    }
+    public static Bitmap RemoveBackground(System.Drawing.Image image)
+    {
+        Bitmap bmp = new Bitmap(image);
+        bmp.MakeTransparent(bmp.GetPixel(0, 0));
+        //for (int i = 0; i < bmp.Width; i++)
+        //{
+            
+        //        bmp.MakeTransparent(bmp.GetPixel(i, 0));
+            
+        //}
+        return bmp;
+    }
+    public static System.Drawing.Image byteArrayToImage(byte[] byteArrayIn)
+    {
+        MemoryStream ms = new MemoryStream(byteArrayIn);
+        System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms);
+        return returnImage;
+    }
+
+    private static byte[] resizeImage(System.Drawing.Image image,
+                         int canvasWidth, int canvasHeight, int originalWidth, int originalHeight)
+    {
+        System.Drawing.Image thumbnail = new Bitmap(canvasWidth, canvasHeight);
+        System.Drawing.Graphics graphic =
+                     System.Drawing.Graphics.FromImage(thumbnail);
+
+        graphic.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        graphic.SmoothingMode = SmoothingMode.HighQuality;
+        graphic.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        graphic.CompositingQuality = CompositingQuality.HighQuality;
+
+        // Figure out the ratio
+        double ratioX = (double)canvasWidth / (double)originalWidth;
+        double ratioY = (double)canvasHeight / (double)originalHeight;
+        // use whichever multiplier is smaller
+        double ratio = ratioX < ratioY ? ratioX : ratioY;
+
+        // now we can get the new height and width
+        int newHeight = Convert.ToInt32(originalHeight * ratio);
+        int newWidth = Convert.ToInt32(originalWidth * ratio);
+
+        // Now calculate the X,Y position of the upper-left corner 
+        // (one of these will always be zero)
+        int posX = Convert.ToInt32((canvasWidth - (originalWidth * ratio)) / 2);
+        int posY = Convert.ToInt32((canvasHeight - (originalHeight * ratio)) / 2);
+
+        graphic.Clear(System.Drawing.Color.White); // white padding
+        graphic.DrawImage(image, posX, posY, newWidth, newHeight);
+
+        /* ------------- end new code ---------------- */
+        //graphic.DrawImage(image, 0, 0, canvasHeight, canvasHeight);
+
+        System.Drawing.Imaging.ImageCodecInfo[] info =
+                         ImageCodecInfo.GetImageEncoders();
+        EncoderParameters encoderParameters;
+        encoderParameters = new EncoderParameters(1);
+        encoderParameters.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality,
+                         100L);
+
+        MemoryStream ms = new MemoryStream();
+        thumbnail.Save(ms, info[1], encoderParameters);
+        return ms.ToArray();
     }
 
     public static Brush GetColorBrush(string colorId)
@@ -544,5 +638,67 @@ public class WebHelper
             default:
                 return Brushes.AntiqueWhite;
         }
+    }
+
+    public static void SendWelcomeEmail(string emailAddress, string userName)
+    {
+        string apiKey = ConfigurationManager.AppSettings["MandrillAPIKey"];
+
+        var api = new MandrillApi(apiKey);
+
+        var recipients = new List<MailChimp.Types.Mandrill.Messages.Recipient>();
+        //var name = string.Format("{0} {1}", firstName, lastName);
+        recipients.Add(new Mandrill.Messages.Recipient(emailAddress, userName));
+
+        var globalMergeVars = new Mandrill.NameContentList<string>();
+        globalMergeVars.Add("FNAME", userName);
+        //globalMergeVars.Add("LNAME", lastName);
+        // add more global variables here as necessary
+
+        var message = new Mandrill.Messages.Message()
+        {
+            To = recipients.ToArray(),
+            FromEmail = "support@startcult.com",
+            FromName = "Cult Collection",
+            Subject = "Welcome to Cult Collection",
+            GlobalMergeVars = globalMergeVars,
+        };
+
+        var templateContent = new Mandrill.NameContentList<string>();
+        templateContent.Add("FNAME", userName);
+        //templateContent.Add("LNAME", lastName);
+
+        var result = api.SendTemplate("Welcome Email", templateContent, message);
+    }
+
+    public static void ForgotPasswordEmail(string emailAddress, string userName, string newPassword)
+    {
+        string apiKey = ConfigurationManager.AppSettings["MandrillAPIKey"];
+
+        var api = new MandrillApi(apiKey);
+
+        var recipients = new List<MailChimp.Types.Mandrill.Messages.Recipient>();
+        //var name = string.Format("{0} {1}", firstName, lastName);
+        recipients.Add(new Mandrill.Messages.Recipient(emailAddress, userName));
+
+        var globalMergeVars = new Mandrill.NameContentList<string>();
+        globalMergeVars.Add("FNAME", userName);
+        globalMergeVars.Add("TMPPWD", newPassword);
+        // add more global variables here as necessary
+
+        var message = new Mandrill.Messages.Message()
+        {
+            To = recipients.ToArray(),
+            FromEmail = "support@startcult.com",
+            FromName = "Cult Collection",
+            Subject = "Cult Collection password reset",
+            GlobalMergeVars = globalMergeVars,
+        };
+
+        var templateContent = new Mandrill.NameContentList<string>();
+        templateContent.Add("FNAME", userName);
+        templateContent.Add("TMPPWD", newPassword);
+
+        var result = api.SendTemplate("Password Reset", templateContent, message);
     }
 }
