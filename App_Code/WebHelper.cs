@@ -13,9 +13,11 @@ using System.Drawing;
 using System.Net;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using MailChimp;
-using MailChimp.Types;
 using System.Configuration;
+using Mandrill;
+using MailChimp.Lists;
+using MailChimp;
+using MailChimp.Helper;
 
 /// <summary>
 /// Summary description for WebHelper
@@ -421,13 +423,13 @@ public class WebHelper
                         if (look.products[i].isCover)
                         {
                             System.Drawing.Image coverImage = System.Drawing.Image.FromStream(stream);
-                            coverImage = byteArrayToImage(resizeImage(coverImage, 150, 230, coverImage.Width, coverImage.Height));
+                            coverImage = byteArrayToImage(resizeImage(coverImage, 300, 460, coverImage.Width, coverImage.Height));
                             lookImages.Insert(0, coverImage);
                         }
                         else
                         {
                             System.Drawing.Image thumbImage = System.Drawing.Image.FromStream(stream);
-                            thumbImage = byteArrayToImage(resizeImage(thumbImage, 48, 74, thumbImage.Width, thumbImage.Height));
+                            thumbImage = byteArrayToImage(resizeImage(thumbImage, 96, 148, thumbImage.Width, thumbImage.Height));
                             lookImages.Add(thumbImage);
                         }
                     }
@@ -498,9 +500,9 @@ public class WebHelper
         int lookPanelHeight = Math.Max(lookImages[0].Height, lookImages[1].Height);
         
         if (lookImages.Count > 2)
-            lookPanelHeight = Math.Max(lookImages[0].Height, lookImages[1].Height + lookImages[2].Height + 4);
+            lookPanelHeight = Math.Max(lookImages[0].Height, lookImages[1].Height + lookImages[2].Height + 8);
         if (lookImages.Count > 3)
-            lookPanelHeight = Math.Max(lookPanelHeight, lookImages[1].Height + lookImages[2].Height + lookImages[3].Height + 8);
+            lookPanelHeight = Math.Max(lookPanelHeight, lookImages[1].Height + lookImages[2].Height + lookImages[3].Height + 16);
 
         Bitmap bitmap = new Bitmap(lookPanelWidth, lookPanelHeight);
 
@@ -527,18 +529,38 @@ public class WebHelper
             
             if (lookImages.Count > 2)
             {
-                g.DrawImage(lookImages[2], lookImages[0].Width + 17, lookImages[1].Height + 4);
+                g.DrawImage(lookImages[2], lookImages[0].Width + 17, lookImages[1].Height + 8);
             }
 
             if (lookImages.Count > 3)
             {
-                g.DrawImage(lookImages[3], lookImages[0].Width + 17, lookImages[1].Height + lookImages[2].Height + 8);
+                g.DrawImage(lookImages[3], lookImages[0].Width + 17, lookImages[1].Height + lookImages[2].Height + 16);
             }
         }
 
-        bitmap.Save(imageFilePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+        ImageCodecInfo jgpEncoder = GetEncoder(ImageFormat.Jpeg);
+        System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+        EncoderParameters myEncoderParameters = new EncoderParameters(1);
+
+        EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 100L);
+        myEncoderParameters.Param[0] = myEncoderParameter;
+
+        bitmap.Save(imageFilePath, jgpEncoder, myEncoderParameters);
 
     }
+    public static ImageCodecInfo GetEncoder(ImageFormat format)
+    {
+        ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+        foreach (ImageCodecInfo codec in codecs)
+        {
+            if (codec.FormatID == format.Guid)
+            {
+                return codec;
+            }
+        }
+        return null;
+    }
+
     public static Bitmap RemoveBackground(System.Drawing.Image image)
     {
         Bitmap bmp = new Bitmap(image);
@@ -646,29 +668,97 @@ public class WebHelper
 
         var api = new MandrillApi(apiKey);
 
-        var recipients = new List<MailChimp.Types.Mandrill.Messages.Recipient>();
-        //var name = string.Format("{0} {1}", firstName, lastName);
-        recipients.Add(new Mandrill.Messages.Recipient(emailAddress, userName));
+        var recipients = new List<EmailAddress>();
+        recipients.Add(new EmailAddress(emailAddress, userName));
 
-        var globalMergeVars = new Mandrill.NameContentList<string>();
-        globalMergeVars.Add("FNAME", userName);
-        //globalMergeVars.Add("LNAME", lastName);
-        // add more global variables here as necessary
-
-        var message = new Mandrill.Messages.Message()
+       
+        var message = new EmailMessage()
         {
-            To = recipients.ToArray(),
-            FromEmail = "support@startcult.com",
-            FromName = "Cult Collection",
-            Subject = "Welcome to Cult Collection",
-            GlobalMergeVars = globalMergeVars,
+            to = recipients,
+            from_email = "support@startcult.com",
+            from_name = "Cult Collection",
+            subject = "Welcome to Cult Collection",
+            
+        };
+        message.AddGlobalVariable("FNAME", userName);
+        message.important = true;
+        
+        var result = api.SendMessageAsync(message, "Welcome Email 1st", null );
+        try
+        {
+            SubscribeUserToMailChimp(emailAddress, userName);
+        }
+        catch (Exception) { }
+
+    }
+    public static void SendWelcomeEmailv2(string emailAddress, UserProfile user, string userAgent, string db)
+    {
+        string apiKey = ConfigurationManager.AppSettings["MandrillAPIKey"];
+
+        var api = new MandrillApi(apiKey);
+
+        var recipients = new List<EmailAddress>();
+        recipients.Add(new EmailAddress(emailAddress, user.userName));
+
+
+        var message = new EmailMessage()
+        {
+            to = recipients,
+            from_email = "support@startcult.com",
+            from_name = "Cult Collection",
+            subject = "Welcome to Cult Collection",
+
+        };
+        message.AddGlobalVariable("FNAME", user.userName);
+        
+        //Get Hot itema
+        /*
+        List<Product> hotItems = Product.GetPopularProductsByUserv2(user.userId, db, 1, 6);
+        for (int i=1; i<= hotItems.Count(); i++)
+        {
+            message.AddGlobalVariable("II"+i, hotItems[i-1].GetNormalImageUrl());
+            message.AddGlobalVariable("IN"+i, hotItems[i-1].name);
+            message.AddGlobalVariable("IB" + i, hotItems[i-1].brandName);
+            message.AddGlobalVariable("IU" + i, "http://startcult.com/product.html?prodId=" + hotItems[i - 1].id + "&colorId=" + hotItems[i - 1].colors[0].canonical[0] 
+                + "&catId=" + hotItems[i - 1].categories[0] + "&user=CultCollection&url=" );
+        }
+        */
+
+        message.important = true;
+
+        if (userAgent.Contains("iPad"))
+        {
+            var result = api.SendMessageAsync(message, "Welcome basic – iPad", null);
+        }
+        else if(userAgent.Contains("iPhone"))
+        {
+            var result = api.SendMessageAsync(message, "Welcome basic – iPhone", null);
+        }
+
+        try
+        {
+            //SubscribeUserToMailChimp(emailAddress, user.userName);
+        }
+        catch (Exception) { }
+
+    }
+    public static void SubscribeUserToMailChimp(string emailId, string userName)
+    {
+        string apiKey = ConfigurationManager.AppSettings["MailchimpAPIKey"];
+
+        MailChimp.Lists.MergeVar myMergeVars = new MergeVar();
+        myMergeVars.Add("FNAME", userName);
+        //myMergeVars.Add("LNAME", "Testerson");
+
+        MailChimpManager mc = new MailChimpManager(apiKey);
+
+        //  Create the email parameter
+        EmailParameter email = new EmailParameter()
+        {
+            Email = emailId
         };
 
-        var templateContent = new Mandrill.NameContentList<string>();
-        templateContent.Add("FNAME", userName);
-        //templateContent.Add("LNAME", lastName);
-
-        var result = api.SendTemplate("Welcome Email", templateContent, message);
+        EmailParameter results = mc.Subscribe("5bea4adf5a", email, myMergeVars,"html", false, true, true, false);
     }
 
     public static void ForgotPasswordEmail(string emailAddress, string userName, string newPassword)
@@ -677,28 +767,51 @@ public class WebHelper
 
         var api = new MandrillApi(apiKey);
 
-        var recipients = new List<MailChimp.Types.Mandrill.Messages.Recipient>();
-        //var name = string.Format("{0} {1}", firstName, lastName);
-        recipients.Add(new Mandrill.Messages.Recipient(emailAddress, userName));
+        var recipients = new List<EmailAddress>();
+        recipients.Add(new EmailAddress(emailAddress, userName));
 
-        var globalMergeVars = new Mandrill.NameContentList<string>();
-        globalMergeVars.Add("FNAME", userName);
-        globalMergeVars.Add("TMPPWD", newPassword);
-        // add more global variables here as necessary
-
-        var message = new Mandrill.Messages.Message()
+        
+        var message = new EmailMessage()
         {
-            To = recipients.ToArray(),
-            FromEmail = "support@startcult.com",
-            FromName = "Cult Collection",
-            Subject = "Cult Collection password reset",
-            GlobalMergeVars = globalMergeVars,
+            to = recipients,
+            from_email = "support@startcult.com",
+            from_name = "Cult Collection",
+            subject = "Cult Collection password reset",
+            
         };
+        message.AddGlobalVariable("FNAME", userName);
+        message.AddGlobalVariable("TMPPWD", newPassword);
+        message.important = true;
 
-        var templateContent = new Mandrill.NameContentList<string>();
-        templateContent.Add("FNAME", userName);
-        templateContent.Add("TMPPWD", newPassword);
+        var result = api.SendMessageAsync(message, "Password Reset", null);
+    }
 
-        var result = api.SendTemplate("Password Reset", templateContent, message);
+    public static void SendOOTDWinnerEmail(UserProfile user, Look look)
+    {
+        string apiKey = ConfigurationManager.AppSettings["MandrillAPIKey"];
+
+        var api = new MandrillApi(apiKey);
+
+        var recipients = new List<EmailAddress>();
+        recipients.Add(new EmailAddress(user.emailId, user.userName));
+
+
+        var message = new EmailMessage()
+        {
+            to = recipients,
+            from_email = "support@startcult.com",
+            from_name = "Cult Collection",
+            subject = "You're today's #OOTD winner!",
+
+        };
+        message.AddGlobalVariable("FNAME", user.userName);
+        message.AddGlobalVariable("LIMG", "http://startcult.com/images/looks/" + look.id + ".jpg");
+        message.AddGlobalVariable("LURL", "http://startcult.com/look.html?lookId=" + look.id + "&userName=Cult_OOTD&url=https://s3-us-west-2.amazonaws.com/fkuserpics/163.jpg&utm_source=email&utm_medium=OOTDemail");
+        message.AddGlobalVariable("LDESC", look.title);
+        message.important = true;
+
+        var result = api.SendMessageAsync(message, "#OOTD Winner", null);
+       
+
     }
 }

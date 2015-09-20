@@ -1,3 +1,4 @@
+
 <!doctype html>
 
 <head>
@@ -7,14 +8,18 @@
       href="images/cult_app_icon_16.png" />
 <script type="text/javascript" src="http://use.typekit.net/rkx7uem.js"></script>
 <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-<base href="http://www.startcult.com/">
-<link href="stylesheet.css" rel="stylesheet" type="text/css">
+<!-- base href="http://www.startcult.com/" -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+<link href="stylesheet_20150516.css" rel="stylesheet" type="text/css">
 </head>
 
 <body class="dark_back">
-	<div class="header">
-		<img id="header_line" alt="" src="images/960x1_headerLine_dark_.png">
-		<img id="identity" alt="Cult Collection" src="images/100x100_identity_.png">
+	<div class="header container">
+		<div class="header_line">
+			<img id="header_line" alt="" src="images/960x1_headerFullLine_dark.png">
+			<img id="identity" alt="Cult Collection" src="images/100x100_identity.png">
+			<a id="signup_link" href="#emailForm">SIGN UP</a>	
+		</div>
 	</div>
 	<div id="welcome">
 		<br>
@@ -22,50 +27,50 @@
 			Welcome to Cult Collection, the place to discover your style
 		</p>
 	</div>
-	<div id="features">
-		<table>
-			<tr>
-				<td>
-					<img class="feature_image" alt="" src="images/230x280_homeFeatures_1_.png">
-				</td>
-				<td>
-					<img class="feature_image" alt="" src="images/230x280_homeFeatures_2_.png">
-				</td>
-				<td>
-					<img class="feature_image" alt="" src="images/230x280_homeFeatures_3_.png">
-				</td>
-				<td>
-					<img class="feature_image" alt="" src="images/230x280_homeFeatures_4_.png">
-				</td>
-			</tr>
-			<tr>
-				<td class="feature_text_cell">
+	<div id="features" class="container">
+		<div class="row">
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<img class="feature_image hidden-sm hidden-xs" alt="" src="images/220x270_homeFeatures_1.png">
+				<img class="feature_image hidden-md hidden-lg" alt="" src="images/200x300_homeFeatures_1.png">
+				<div class="feature_text_cell">
 					<p class="feature_text">
 						Stay on top of the latest fashion events, trends and the styles worn by the people who matter
 					</p>
-				</td>
-				<td class="feature_text_cell">
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<img class="feature_image hidden-sm hidden-xs" alt="" src="images/220x270_homeFeatures_2.png">
+				<img class="feature_image hidden-md hidden-lg" alt="" src="images/200x300_homeFeatures_2.png">
+				<div class="feature_text_cell">
 					<p class="feature_text">
 						Connect to professional stylists, tastemakers and fashion enthusiasts in your network
 					</p>
-				</td>
-				<td class="feature_text_cell">
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<img class="feature_image hidden-sm hidden-xs" alt="" src="images/220x270_homeFeatures_3.png">
+				<img class="feature_image hidden-md hidden-lg" alt="" src="images/200x300_homeFeatures_3.png">
+				<div class="feature_text_cell">
 					<p class="feature_text">
-						Share your style by creating your own looks and remixing anyone else&rsquo;s
+						Share your style by creating your own looks and curating your lookbook
 					</p>
-				</td>
-				<td class="feature_text_cell">
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<img class="feature_image hidden-sm hidden-xs" alt="" src="images/220x270_homeFeatures_4.png">
+				<img class="feature_image hidden-md hidden-lg" alt="" src="images/200x300_homeFeatures_4.png">
+				<div class="feature_text_cell">
 					<p class="feature_text">
 						Keep track of what&rsquo;s in your closet and shop the items you covet
 					</p>
-				</td>
-			</tr>
-		</table>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div id="runway">
 		<img id="runway_image" alt="" src="images/runway_clip.png">
 	</div>
-	<div id="app_store_area">
+	<div id="app_store_area" class="container">
 		<br><br>
 		<div class="body_copy">
 			<p class="pink">
@@ -74,26 +79,33 @@
 			<p class="dark_gray">
 				Dive into Cult Collection to see what everyone&rsquo;s raving about.
 				<br>
-				Debuting now on the iPad. Other channels soon
+				Available now on the iPad and iPhone. 
+				<br>
+				Other channels coming soon
 			</p>
 			<br>
+			
 			<div>
 				<a href="http://j.mp/jointhecult">
-					<img alt="Download on the App Store" src="images/ipad_screen_look.png">
+					<img class="device-images" alt="Download on the App Store" src="images/iPhone_iPad_combo_2.jpg">
 				</a>
+				<p class="dark_gray">
+				Use the iPhone app to browse and save hot items at retail on-the-go. 
+				Indulge your inner stylist and create looks on the iPad
+				</p>
 			</div>
-			<br><br>
+
+			<br>
 			<div id="download_button">
 				<a href="http://j.mp/jointhecult">
 					<img id="download_image" alt="Download on the App Store" src="images/download_button.png">
 				</a>
-				<p class="dark_gray">
-				iPad only
-				</p>
 			</div>
 		</div>
-		<br>
-		<div id="screenshots">
+		<br><br><br>
+		
+		<!--
+		<div id="screenshots" class="hidden-xs hidden-sm">
 			<table>
 				<tr>
 					<td class="screenshot_cell">
@@ -119,13 +131,15 @@
 				</tr>
 			</table>
 		</div>
-		<br><br>
+		<br>
+		-->
 		<div class="body_copy">
-			<p class="pink">
+			<p class="pink" id="emailForm">
+				<br>
 				TILL THEN ...
 			</p>
 			<p class="dark_gray">
-				If you&rsquo;d like to know when you can play on your phone, 
+				If you&rsquo;d like to stay on top of new releases, 
 				<br>
 				sign up for our updates
 			</p>
@@ -145,16 +159,19 @@
 			</div>
 		</div>
 		<br><br>
+		
 		<div class="body_copy">
 			<p class="pink">
 				CURRENT GIVEAWAYS
 			</p>
-			<p class="dark_gray">
-				&quot;Cult Collection Launch Sweepstakes&quot; rules <a class="orange" href="campaigns/launch_sweeps.html">here</a>. 
-				&quot;Cult Collection Tapjoy Sweepstakes&quot; rules <a class="orange" href="campaigns/tapjpoy_sweeps.html">here</a>
-			</p>
+			<ul class="dark_gray wrap-list">
+				<!--
+				<li>&quot;Cult Collection Launch Sweepstakes&quot; rules <a class="orange" href="campaigns/launch_sweeps.html">here</a></li>
+				-->
+				<li>&quot;Cult Collection Tapjoy Sweepstakes&quot; rules <a class="orange" href="campaigns/tapjoy_sweeps.html">here</a></li>
+			</ul>
 		</div>
-		<br><br><br><br><br><br><br><br>
+		<br><br><br><br><br><br>
 	</div>
 	<div id="footer_area">
 		<br><br>
@@ -173,27 +190,27 @@
 				<tr>
 					<td class="screenshot_cell">
 						<a href="mailto:info@startcult.com">
-							<img class="social_image" alt="" src="images/40x40_social_white_email_.png">
+							<img class="social_image" alt="" src="images/40x40_social_white_email.png">
 						</a>
 					</td>
 					<td class="screenshot_cell">
 						<a href="http://www.twitter.com/Cult_Collection" target="_blank">
-							<img class="social_image" alt="" src="images/40x40_social_white_twitter_.png">
+							<img class="social_image" alt="" src="images/40x40_social_white_twitter.png">
 						</a>
 					</td>
 					<td class="screenshot_cell">
 						<a href="http://www.facebook.com/CultCollection" target="_blank">
-							<img class="social_image" alt="" src="images/40x40_social_white_facebook_.png">
+							<img class="social_image" alt="" src="images/40x40_social_white_facebook.png">
 						</a>
 					</td>
 					<td class="screenshot_cell">
 						<a href="http://www.pinterest.com/CultCollection" target="_blank">
-							<img class="social_image" alt="" src="images/40x40_social_white_pinterest_.png">
+							<img class="social_image" alt="" src="images/40x40_social_white_pinterest.png">
 						</a>
 					</td>
 					<td class="screenshot_cell">
 						<a href="http://www.instagram.com/Cult_Collection/" target="_blank">
-							<img class="social_image" alt="" src="images/40x40_social_white_instagram_.png">
+							<img class="social_image" alt="" src="images/40x40_social_white_instagram.png">
 						</a>
 					</td>
 				</tr>
@@ -201,14 +218,20 @@
 		</div>
 		<br><br>
 		<div class="body_copy">
-			<p class="dark_gray">
-				<a class="white" href="mailto:support@startcult.com">SUPPORT</a>
-				&nbsp;&nbsp;|&nbsp;&nbsp;
-				<a class="white" href="privacy.html">PRIVACY POLICY</a>
-				&nbsp;&nbsp;|&nbsp;&nbsp;
-				<a class="white" href="attribution.html">ATTRIBUTION</a>
-				<br><br>
-			</p>
+			<ul class="dark_gray wrap-list">
+				<li>
+					<a class="white" href="mailto:support@startcult.com">SUPPORT</a>
+					&nbsp;&nbsp;|&nbsp;&nbsp;
+				</li>
+				<li>
+					<a class="white" href="privacy.html">PRIVACY POLICY</a>
+					&nbsp;&nbsp;|&nbsp;&nbsp;
+				</li>
+				<li>
+					<a class="white" href="attribution.html">ATTRIBUTION</a>
+				</li>
+			</ul>
+			<br/><br/>
 			<p class="light_gray">
 				&#0169; 2015, 541 Ramona Inc.
 			</p>

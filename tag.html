@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html xmlns:og="http://ogp.me/ns#"
+      xmlns:fb="https://www.facebook.com/2008/fbml">
+<head>
+<meta charset="UTF-8">
+<title>#foundOnCultCollection</title>
+<meta name="keywords" content="shopping, shop, woman, women, accessories, shoes, clothes, sales, sale">
+<meta name="apple-itunes-app" content="app-id=948523449">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:image" content="images/100x100_identity_.png"/>
+
+
+<link href="stylesheet.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="http://use.typekit.net/rkx7uem.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+
+<link rel="icon" 
+      type="image/png" 
+      href="images/cult_app_icon_16.png" />
+
+</head>
+<body>
+    <!--script src="http://code.jquery.com/jquery.min.js"></script> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script> 
+
+<script>
+
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  } 
+  console.log('Query Variable ' + variable + ' not found');
+}
+
+$(document).ready(function() {
+
+	var tagId = getQueryVariable('tagId');
+	setTimeout(function() {
+  		window.location = "https://itunes.apple.com/us/app/cult-collection/id948523449?ls=1&mt=8";
+	}, 25);
+	window.location = "cuco://?t="+tagId;
+});
+</script>
+</body>
+</html> 

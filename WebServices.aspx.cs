@@ -14,6 +14,7 @@ using ShopSenseDemo;
 using System.Web.Script.Serialization;
 using System.Runtime.Serialization;
 using System.Net;
+using System.Runtime.Serialization.Json;
 
 
 public partial class WebServices : System.Web.UI.Page
@@ -43,6 +44,12 @@ public partial class WebServices : System.Web.UI.Page
 
     private delegate void ReStyleNotificationDelegete(long lookId, long originalLookId, long userId, string accessToken);
     private static ReStyleNotificationDelegete restyleNotifications;
+
+    private delegate void CreateNotificationDelegete(long lookId, long userId, string accessToken);
+    private static CreateNotificationDelegete createNotifications;
+
+    private delegate void LookDeleteNotificationDelegete(long lookId, long userId, string accessToken);
+    private static LookDeleteNotificationDelegete lookDeleteNotifications;
 
     private delegate void FollowNotificationDelegete(long subscriberId, long userId, string accessToken, bool isSubscribe);
     private static FollowNotificationDelegete followNotification;
@@ -102,12 +109,170 @@ public partial class WebServices : System.Web.UI.Page
     }
 
     [System.Web.Services.WebMethod]
+    public static Array GetTopStylists(long userId, int noOfStylist)
+    {
+
+        string db = GetConnectionString();
+
+        Array users = UserProfile.GetTopStylists(userId,noOfStylist, db).ToArray();
+
+        return users;
+
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetHomePagePromo(long userId)
+    {
+        string promoFile = @"https://s3-us-west-2.amazonaws.com/fkconfigs/appHomePromo_schedule.json";
+        System.Net.ServicePointManager.Expect100Continue = false;
+        Promos promos = new Promos();
+
+        using (WebClient client = new WebClient())
+        {
+            try
+            {
+                using (Stream stream = client.OpenRead(promoFile))
+                {
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Promos));
+                    //stream.Position = 0;
+                    promos = (Promos)ser.ReadObject(stream);
+                }
+            }
+            catch (WebException ex)
+            { }
+
+        }
+
+        List<Promo> eligiblePromos = new List<Promo>();
+        foreach (Promo promo in promos.promos)
+        {
+            DateTime startDate = DateTime.Parse(promo.startDate);
+            DateTime endDate = DateTime.Parse(promo.endDate);
+            if (startDate < DateTime.UtcNow && endDate > DateTime.UtcNow)
+            {
+                eligiblePromos.Add(promo);
+            }
+            else
+                continue;
+        }
+
+        //Promo promo = new Promo("aa", "2/1/2015", "3/1/2015", "aa.jpg", "aa.jpg", 20,40);
+        //promos.Add(promo);
+
+        return eligiblePromos.ToArray();
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetHomePagePromov2(long userId, string userAgent)
+    {
+        string promoFile = @"https://s3-us-west-2.amazonaws.com/fkconfigs/appHomePromo_schedule.json";
+        System.Net.ServicePointManager.Expect100Continue = false;
+        Promos promos = new Promos();
+
+        using (WebClient client = new WebClient())
+        {
+            try
+            {
+                using (Stream stream = client.OpenRead(promoFile))
+                {
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Promos));
+                    //stream.Position = 0;
+                    promos = (Promos)ser.ReadObject(stream);
+                }
+            }
+            catch (WebException ex)
+            { }
+
+        }
+
+        List<Promo> eligiblePromos = new List<Promo>();
+        foreach (Promo promo in promos.promos)
+        {
+            DateTime startDate = DateTime.Parse(promo.startDate);
+            DateTime endDate = DateTime.Parse(promo.endDate);
+            if (startDate < DateTime.UtcNow && endDate > DateTime.UtcNow)
+            {
+                if (userAgent.Contains("iPad") && promo.iPadHeight > 0)
+                {
+                    eligiblePromos.Add(promo);
+                }
+                else if (userAgent.Contains("iPhone") && promo.iPhoneHeight > 0)
+                {
+                    eligiblePromos.Add(promo);
+                }
+            }
+            else
+                continue;
+        }
+
+        //Promo promo = new Promo("aa", "2/1/2015", "3/1/2015", "aa.jpg", "aa.jpg", 20,40);
+        //promos.Add(promo);
+
+        return eligiblePromos.ToArray();
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetTagPagePromo(long userId, long tagId)
+    {
+        string promoFile = @"https://s3-us-west-2.amazonaws.com/fkconfigs/appThemePromo_schedule.json";
+        System.Net.ServicePointManager.Expect100Continue = false;
+        Promos promos = new Promos();
+
+        using (WebClient client = new WebClient())
+        {
+            try
+            {
+                using (Stream stream = client.OpenRead(promoFile))
+                {
+                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Promos));
+                    //stream.Position = 0;
+                    promos = (Promos)ser.ReadObject(stream);
+                }
+            }
+            catch (WebException ex)
+            { }
+
+        }
+
+        List<Promo> eligiblePromos = new List<Promo>();
+        foreach (Promo promo in promos.promos)
+        {
+            DateTime startDate = DateTime.Parse(promo.startDate);
+            DateTime endDate = DateTime.Parse(promo.endDate);
+            if (startDate < DateTime.UtcNow && endDate > DateTime.UtcNow && promo.tagId == tagId)
+            {
+                eligiblePromos.Add(promo);
+                //break;
+            }
+            else
+                continue;
+        }
+
+        //Promo promo = new Promo("aa", "2/1/2015", "3/1/2015", "aa.jpg", "aa.jpg", 20,40);
+        //promos.Add(promo);
+
+        return eligiblePromos.ToArray();
+    }
+    
+    [System.Web.Services.WebMethod]
     public static Array GetHomePageLooks(long userId, int offset, int limit)
     {
 
         string db = GetConnectionString();
 
         Array looks = Look.GetHomePageLooks(db, userId, offset, limit).ToArray();
+
+        return looks;
+
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetHomePageLooks_NoFilter(long userId, int offset, int limit)
+    {
+
+        string db = GetConnectionString();
+
+        Array looks = Look.GetHomePageLooks(db, userId, offset, limit, false).ToArray();
 
         return looks;
 
@@ -137,6 +302,19 @@ public partial class WebServices : System.Web.UI.Page
 
     [System.Web.Services.WebMethod]
 
+    public static Array GetAllTags(long userId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        Array tags;
+
+        tags = Tag.getAllHashtags(userId, db, offset, limit).ToArray();
+
+        return tags;
+    }
+
+    [System.Web.Services.WebMethod]
+
     public static Array GetFeaturedTags(long userId)
     {
         string db = GetConnectionString();
@@ -147,6 +325,46 @@ public partial class WebServices : System.Web.UI.Page
 
         return tags;
     }
+
+    [System.Web.Services.WebMethod]
+
+    public static Array GetFeaturedBrands(long userId)
+    {
+        string db = GetConnectionString();
+
+        Array brands;
+
+        brands = Brand.GetFeaturedBrands(userId, db).ToArray();
+
+        return brands;
+    }
+
+    [System.Web.Services.WebMethod]
+
+    public static Array GetFeaturedTagsv2(long userId)
+    {
+        string db = GetConnectionString();
+
+        Array tags;
+
+        tags = Tag.getFeaturedHashtagsv2(userId, db).ToArray();
+
+        return tags;
+    }
+
+    [System.Web.Services.WebMethod]
+
+    public static Array GetHPFeaturedTags(long userId)
+    {
+        string db = GetConnectionString();
+
+        Array tags;
+
+        tags = Tag.getHPFeaturedTags(userId, db).ToArray();
+
+        return tags;
+    }
+
     [System.Web.Services.WebMethod]
 
     public static Array GetTagMetaInfo(long userId, long tagId, int noOfLooks, int noOfItems, int noOfStylists)
@@ -211,6 +429,28 @@ public partial class WebServices : System.Web.UI.Page
     }
 
     [System.Web.Services.WebMethod]
+    public static Array GetPopularItemsByUserv2(long userId, int offset, int limit)
+    {
+        string db = GetConnectionString();
+
+        Array products = Product.GetPopularProductsByUserv2(userId, db, offset, limit).ToArray();
+
+        return products;
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetProduct(long userId,long productId, string categoryId, string colorId)
+    {
+        string db = GetConnectionString();
+
+        Product product = Product.GetProductById(userId,productId, colorId, categoryId, db);
+        List<Product> products = new List<ShopSenseDemo.Product>();
+        products.Add(product);
+
+        return products.ToArray();
+    }
+
+    [System.Web.Services.WebMethod]
     public static Array GetTaggedPopularStylists(long userId, long tagId)
     {
         string db = GetConnectionString();
@@ -258,7 +498,15 @@ public partial class WebServices : System.Web.UI.Page
         Notification note = new ShopSenseDemo.Notification(lookId, userId, look.creator.userId, NotificationType.LoveLook);
 
         if (isHeart)
+        {
             Notification.SaveNotification(note, db);
+            //send #OOTD mail to the winner if this like is from Cult_OOTD
+            if (userId == 163)
+            {
+                UserProfile winner = UserProfile.GetUserProfileById(look.creator.userId, db);
+                WebHelper.SendOOTDWinnerEmail(winner, look);
+            }
+        }
         else
             Notification.DeleteNotification(note, db);
 
@@ -363,8 +611,29 @@ public partial class WebServices : System.Web.UI.Page
 
         bool isSuccess = Look.DeleteLook(db, userId, lookId);
 
+        if (isSuccess)
+        {
+
+            //Send notifications asynchronously
+            lookDeleteNotifications = new LookDeleteNotificationDelegete(DeleteNotifications);
+
+            string appAccessToken = null;
+
+            lookDeleteNotifications.BeginInvoke(lookId, userId, appAccessToken, null, null);
+        }
+
         return isSuccess;
     }
+    public static void DeleteNotifications(long lookId, long userId, string appAccessToken)
+    {
+        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+        
+        //delete all notification related to this look in db
+        Notification note = new ShopSenseDemo.Notification(lookId, userId, 0, NotificationType.Generic);
+        
+        Notification.DeleteLookNotification(note, db);
+    }
+
     [WebMethod]
     public static bool AddItemtoCloset(long userId, long productId,string colorId, string categoryId, bool isAddToCloset)
     {
@@ -457,6 +726,16 @@ public partial class WebServices : System.Web.UI.Page
 
         return UserProfile.GetClosetProducts(userId, db, viewerId).ToArray();
     }
+
+    [WebMethod]
+    public static Array GetClosetItemsv2(long userId, long viewerId, int items)
+    {
+
+        string db = GetConnectionString();
+
+        return UserProfile.GetClosetProductsv2(userId, db, viewerId, items).ToArray();
+    }
+
     [WebMethod]
     public static Array GetClosetItemsByMetaCat(long userId, string metaCat, int offset, int limit, long viewerId)
     {
@@ -464,6 +743,14 @@ public partial class WebServices : System.Web.UI.Page
         string db = GetConnectionString();
 
         return UserProfile.GetClosetProductsByMetaCat(userId, metaCat, db, offset, limit, viewerId).ToArray();
+    }
+    [WebMethod]
+    public static Array GetClosetItemsByMetaCatv2(long userId, string metaCat, int offset, int limit, long viewerId)
+    {
+
+        string db = GetConnectionString();
+
+        return UserProfile.GetClosetProductsByMetaCat(userId, metaCat, db, offset, limit, viewerId, true).ToArray();
     }
     [WebMethod]
     public static Array GetClosetItemsByDate(long userId, int offset, int limit)
@@ -488,6 +775,14 @@ public partial class WebServices : System.Web.UI.Page
         string db = GetConnectionString();
 
         return Product.GetPopularProductsByFiltersv2(userId, db, brandId, tags, categoryId, colorId, offset, limit).ToArray();
+    }
+    [WebMethod]
+    public static Array GetPopularProductsv3(long userId, int offset, int limit, string categoryId = null, string colorId = null, string tags = null, int brandId = 0,int items=5, string filter=null)
+    {
+
+        string db = GetConnectionString();
+
+        return Product.GetPopularProductsByFiltersv3(userId, db, brandId, tags, categoryId, colorId, offset, limit, items, filter).ToArray();
     }
 
     [WebMethod]
@@ -525,6 +820,14 @@ public partial class WebServices : System.Web.UI.Page
             string appAccessToken = null;
 
             restyleNotifications.BeginInvoke(look.id, originalLookId, userId, appAccessToken, null, null);
+        }
+        else if(editLookId == 0)  //send create notification for original look
+        {
+            createNotifications = new CreateNotificationDelegete(createNotificationsFn);
+
+            string appAccessToken = null;
+
+            createNotifications.BeginInvoke(look.id, userId, appAccessToken, null, null); 
         }
 
         return looks.ToArray();
@@ -568,7 +871,15 @@ public partial class WebServices : System.Web.UI.Page
       
     }
 
+    public static void createNotificationsFn(long lookId, long userId, string appAccessToken)
+    {
+        string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
+        
+        //save notification in db
+        Notification note = new ShopSenseDemo.Notification(lookId, 0, userId, NotificationType.CreateLook);
+        Notification.SaveCreateNotification(note, db);
 
+    }
 
     [WebMethod]
     public static Array SaveLookByStylists(long userId, string productMap, string tagMap, string title, long originalLookId = 0, long editLookId = 0, bool isFeaturedStylist = false)
@@ -618,7 +929,29 @@ public partial class WebServices : System.Web.UI.Page
         List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
         UserProfile user = UserProfile.LogInViaFb(facebookId, db);
 
-        WebHelper.SendWelcomeEmail(user.emailId, user.name);
+        //Look look = Look.GetLookById(7339, 4, db);
+        //WebHelper.SendOOTDWinnerEmail(user, look);
+        //WebHelper.SendWelcomeEmailv2(user.emailId, user, "iPhone", db);
+        //WebHelper.SendWelcomeEmail(user.emailId, user.name);
+       //WebHelper.ForgotPasswordEmail(user.emailId, user.userName, "abcd");
+        users.Add(user);
+
+        return users.ToArray();
+    }
+
+    [WebMethod]
+    public static Array LoginViaFbv2(long facebookId, string userAgent)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
+        UserProfile user = UserProfile.LogInViaFb(facebookId, db, userAgent);
+
+        //Look look = Look.GetLookById(7339, 4, db);
+        //WebHelper.SendOOTDWinnerEmail(user, look);
+        //WebHelper.SendWelcomeEmailv2(user.emailId, user, "iPhone", db);
+        //WebHelper.SendWelcomeEmail(user.emailId, user.name);
+        //WebHelper.ForgotPasswordEmail(user.emailId, user.userName, "abcd");
         users.Add(user);
 
         return users.ToArray();
@@ -630,6 +963,17 @@ public partial class WebServices : System.Web.UI.Page
 
         List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
         UserProfile user = UserProfile.LogInUser(emailId, password, db);
+        users.Add(user);
+
+        return users.ToArray();
+    }
+    [WebMethod]
+    public static Array LoginViaEmailv2(string emailId, string password, string userAgent)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
+        UserProfile user = UserProfile.LogInUser(emailId, password, db, userAgent);
         users.Add(user);
 
         return users.ToArray();
@@ -649,6 +993,7 @@ public partial class WebServices : System.Web.UI.Page
         user.locale =locale;
         user.gender = (gender == "female" ? Sex.Female : Sex.Male);
         user.userName = null;
+        user.userAgent = "iPad";
 
         //extended perm
         if (location != null)
@@ -681,6 +1026,55 @@ public partial class WebServices : System.Web.UI.Page
 
         return users.ToArray();
     }
+
+    [WebMethod]
+    public static Array RegisterViaFbv2(long facebookId, string userName, string emailId, string locale, string gender, string pic, string location, string fbAccessToken, string userAgent)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
+
+        UserProfile user = new ShopSenseDemo.UserProfile();
+        user.accessToken = fbAccessToken;
+        user.pic = pic;
+        user.facebookId = facebookId;
+        user.name = userName;
+        user.locale = locale;
+        user.gender = (gender == "female" ? Sex.Female : Sex.Male);
+        user.userName = null;
+        user.userAgent = userAgent;
+
+        //extended perm
+        if (location != null)
+            user.location = location;
+
+        if (emailId != null)
+            user.emailId = emailId;
+
+        user.facebookFriends = new List<long>();
+        //if (friendsfbId != null)
+        //{
+        //    foreach (long friendId in friendsfbId)
+        //    {
+        //        user.facebookFriends.Add(friendId);
+        //    }
+        //}
+
+        user = UserProfile.SaveOrUpdateUser(user, db);
+
+        if (user.IsNew)
+        {
+            //send welcome email
+            try
+            {
+                WebHelper.SendWelcomeEmailv2(user.emailId, user, userAgent, db);
+            }
+            catch { }
+        }
+        users.Add(user);
+
+        return users.ToArray();
+    }
     
     [WebMethod]
     public static Array RegisterViaEmail(string userName, string emailId, string password)
@@ -698,6 +1092,7 @@ public partial class WebServices : System.Web.UI.Page
         user.gender = Sex.Female;
         user.password = password;
         user.emailId = emailId;
+        user.userAgent = "iPad";
         
         user.facebookFriends = new List<long>();
         //if (friendsfbId != null)
@@ -726,8 +1121,52 @@ public partial class WebServices : System.Web.UI.Page
     }
 
     [WebMethod]
+    public static Array RegisterViaEmailv2(string userName, string emailId, string password, string userAgent)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = new List<ShopSenseDemo.UserProfile>();
+
+        UserProfile user = new ShopSenseDemo.UserProfile();
+        user.accessToken = null;
+        user.pic = null;
+        user.facebookId = -1;
+        user.userName = userName;
+        user.locale = "en-US";
+        user.gender = Sex.Female;
+        user.password = password;
+        user.emailId = emailId;
+        user.userAgent = userAgent;
+
+        user.facebookFriends = new List<long>();
+        //if (friendsfbId != null)
+        //{
+        //    foreach (long friendId in friendsfbId)
+        //    {
+        //        user.facebookFriends.Add(friendId);
+        //    }
+        //}
+
+        user = UserProfile.SaveOrUpdateUser(user, db);
+
+        if (user.IsNew)
+        {
+            try
+            {
+                //send welcome email
+                WebHelper.SendWelcomeEmailv2(user.emailId, user, userAgent, db);
+            }
+            catch { }
+        }
+
+        users.Add(user);
+
+        return users.ToArray();
+    }
+
+    [WebMethod]
     public static Array UpdateUserInfo(long userId, string userName, string name, string emailId, string gender, string pic, string location, string bio, string url, string fbPage=null,
-        string twitterHandle=null, string PinterestHandle=null, string TumblrHandle=null)
+        string twitterHandle=null, string PinterestHandle=null, string TumblrHandle=null, string InstagramHandle = null)
     {
         string db = GetConnectionString();
 
@@ -760,6 +1199,9 @@ public partial class WebServices : System.Web.UI.Page
 
         if (TumblrHandle != null)
             user.TumblrHandle = TumblrHandle;
+
+        if (InstagramHandle != null)
+            user.InstagramHandle = InstagramHandle;
 
         user = UserProfile.UpdateUserInfo(user, db);
 
@@ -815,7 +1257,7 @@ public partial class WebServices : System.Web.UI.Page
     {
         string db = ConfigurationManager.ConnectionStrings["DatabaseConnectionString"].ConnectionString;
 
-        Notification note = new ShopSenseDemo.Notification(0, subscriberId, userId, ShopSenseDemo.NotificationType.FollowUser);
+        Notification note = new ShopSenseDemo.Notification(0, userId, subscriberId, ShopSenseDemo.NotificationType.FollowUser);
 
         if (isSubscribe)
             Notification.SaveNotification(note, db);
@@ -907,6 +1349,30 @@ public partial class WebServices : System.Web.UI.Page
         return isSuccess;
     }
 
+    [WebMethod]
+    public static bool FollowBrands(long userId, string brands, bool isFollow)
+    {
+        bool isSuccess = false;
+
+        string db = GetConnectionString();
+
+        isSuccess = UserProfile.SubscribeBrands(userId, brands, isFollow, db);
+
+        return isSuccess;
+    }
+
+    [WebMethod]
+    public static bool IsFollowedBrand(long userId, long brandId)
+    {
+        bool isFollowed = false;
+
+        string db = GetConnectionString();
+
+        isFollowed = UserProfile.IsSubscribeBrand(userId, brandId, db);
+
+        return isFollowed;
+    }
+
     //profile page
     [System.Web.Services.WebMethod]
     public static Array GetUserLooks(long userId, int offset, int limit, long viewerId)
@@ -917,6 +1383,16 @@ public partial class WebServices : System.Web.UI.Page
 
         return profileInfo.ToArray();
         
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetUserLookBook(long userId, int offset, int limit, long viewerId, int sortType)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "lookbook", db, offset, limit, viewerId, sortType);
+
+        return profileInfo.ToArray();
     }
 
     [System.Web.Services.WebMethod]
@@ -968,6 +1444,39 @@ public partial class WebServices : System.Web.UI.Page
         string db = GetConnectionString();
 
         Dictionary<string, List<object>> profileInfo = UserProfile.GetUserProfileInfo(userId, "following", db, offset, limit, viewerId);
+
+        return profileInfo.ToArray();
+
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetUserFollowedTags(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+       List<Tag> tags = UserProfile.GetUserFollowedTags(userId, db, offset, limit, viewerId);
+
+       return tags.ToArray();
+
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetUserFollowedUsers(long userId, int offset, int limit, long viewerId)
+    {
+        string db = GetConnectionString();
+
+        List<UserProfile> users = UserProfile.GetUserFollowedUsers(userId, db, offset, limit, viewerId);
+
+        return users.ToArray();
+
+    }
+
+    [System.Web.Services.WebMethod]
+    public static Array GetUserFollowedBrands(long userId)
+    {
+        string db = GetConnectionString();
+
+        Dictionary<string, List<object>> profileInfo = UserProfile.GetUserFollowedBrands(userId, db);
 
         return profileInfo.ToArray();
 
@@ -1125,6 +1634,27 @@ public partial class WebServices : System.Web.UI.Page
 
         return isSuccess;
     }
+
+    [WebMethod]
+    public static bool UpdateNotificationSeen(long userId)
+    {
+
+        string db = GetConnectionString();
+
+        bool isSuccess = UserProfile.SaveNotificationSeenTime(userId, db);
+
+        return isSuccess;
+    }
+    [WebMethod]
+    public static bool IsNewNotification(long userId)
+    {
+
+        string db = GetConnectionString();
+
+        bool isSuccess = Notification.IsNewNotification(userId, db);
+
+        return isSuccess;
+    }
     [WebMethod]
     public static bool ReportItem(long userId, long  productId)
     {
@@ -1141,7 +1671,7 @@ public partial class WebServices : System.Web.UI.Page
     {
         string db = GetConnectionString();
 
-        List<Notification> notes = Notification.GetLastNotifications(userId, db, offset, limit);
+        List<object> notes = Notification.GetLastNotifications(userId, db, offset, limit);
         return notes.ToArray();
     }
 

@@ -4,15 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <title>#foundOnCultCollection</title>
-<meta name="description" content="Check out this look I found on Cult Collection">
+<meta name="description" content="Check out this item I found on Cult Collection">
 <meta name="keywords" content="shopping, shop, woman, women, accessories, shoes, clothes, sales, sale">
 <meta name="apple-itunes-app" content="app-id=948523449">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta property="og:title" content="#foundOnCultCollection"/>
-<meta property="og:type" content="fashionkred:outfit"/>
-<meta property="og:url" content="http://startcult.com/look.html"/>
-<meta property="og:description" content="Check out this look I found on Cult Collection"/>
+<meta property="og:url" content="http://startcult.com/product.html"/>
+<meta property="og:description" content="Check out this item I found on Cult Collection"/>
 <meta property="og:image" content="images/100x100_identity_.png"/>
 
 
@@ -73,7 +72,7 @@ body {
     background-image: url('');
     background-repeat:no-repeat;
     background-size:contain;
-    float:left;
+    margin: auto;
 }
 
 .lookColumnBig{
@@ -178,35 +177,27 @@ mark {
         <div>
             <img id="header_line" alt="" src="images/960x1_headerLine_dark_.png">
             <a href="http://startcult.com">
-                 <img alt="Cult Collection" src="images/100x100_identity_.png" height="100" width="100" style="display: block;margin :auto">
+                <img alt="Cult Collection" src="images/100x100_identity_.png" height="100" width="100" style="display: block;margin :auto">
             </a>
         </div>
         <br /> <br />
             <img id ='sourceAvatarImage' src ="images/user_default.png" onerror="this.src = 'images/user_default.png';" class="avatar" alt="Cult Collection">
             <p class="userName" id='sourceUserName' style="text-align:center;">username</p>
-            <p class="p" style="text-align:center;">shared a look with you</p>
+            <p class="p" style="text-align:center;">shared an item with you</p>
         <br />
         <br />
     </div> 
 
-    <div class="wrapper">
-        <div class="left" id="template1">
-        </div>
-        <div class="right">
-            <a href="#" class="pull-left">
-                <img class="avatar" id ='avatarImage' src ="images/user_default.png" onerror="this.src = 'images/user_default.png';" 
-                alt="Sample Image">
-            </a>
-            <div class="desc">
-                <p class="userName" id='userName'></p>
-                <p class="p" id='description'></p>
-            </div>
-        </div> 
+    <div class="header">
+          <div class='div_image_big' id ='productImage'></div>
+          <p class="userName" id='productName' style="text-align:center;">product</p>
+          <p class="p" id='colorName' style="text-align:center;">color</p>
+          <p class="p" id='brandName' style="text-align:center;">brand</p>
     </div>
     <br /><br />
     <img class="img" = src="images/divider.png" alt="Cult Collection" height="1">
     <br /><br /><br /><br />
-    
+
     <div class="wrapper_footer">
 		<p class="pink">
 			CULT COLLECTION
@@ -265,7 +256,6 @@ mark {
 	</div>
 	<br><br><br>
 
-
     <!--script src="http://code.jquery.com/jquery.min.js"></script> -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
@@ -288,55 +278,13 @@ mark {
 
 function updatePage(data) {
 
-
-    $("p#userName").text(data.d[0].creator.userName);
+  console.log (data);
+  var prod = data.d[0].images[0].url;
+  $('#productImage').css('background-image','url('+prod+')');
+  $("p#productName").text(data.d[0].name);
+  $("p#brandName").text(data.d[0].brandName);
+  $("p#colorName").text(data.d[0].colors[0].name);
     
-
-    var s = data.d[0].title;
-    var tags = data.d[0].tags;
-    for (var k = 0; k<tags.length;k++) {
-        var tagN = tags[k];
-        var tagName = '#'+tagN.name;
-        s = s.replace(tagName, '<mark>'+tagName+'</mark>');
-    }
-    $("p#description").html(s);
-
-
-    $('meta[name=description]').attr('description', data.d[0].title);
-    var products = data.d[0].products;
-    var cover = 0;
-    for (var j=0;j <products.length; j++){
-        var prod = products[j];
-        if (prod.isCover) {
-            cover = j;
-        }
-    }
-    if (products.length <6) {
-         $(".wrapper").css('height',500);
-    }
-    else {
-         $(".wrapper").css('height',750);
-    }
-   
-
-    $.get('LookTemplates/look_template'+(cover+1)+'.html', function( my_var ) {
-        $("div#template1").html(my_var);
-
-        for (var i=0; i< products.length;i++) {
-            var element = 'lookImage'+i;
-            var prod = products[i];
-            $('#'+element).css('background-image','url('+prod.images[0].url+')');
-        }
-    });    
-    document.getElementById('avatarImage').src=data.d[0].creator.pic;
-}
-
-function getImagePath()
-{
-    var lookId = getQueryVariable('lookId');
-    var path = "http://startcult.com/images/looks/"+lookId+".jpg";
-    return path;
-
 }
 
 function getSourceImagePath()
@@ -360,20 +308,21 @@ function getQueryVariable(variable) {
 
 function loadPage()
 {
+  $('meta[property="og:image"]').remove();
   var url = getSourceImagePath();
 
   document.getElementById('sourceAvatarImage').src= url;
-  $("p#sourceUserName").text(getQueryVariable('userName'));
+  $("p#sourceUserName").text(getQueryVariable('user'));
   $.get('footer.html', function( my_var ) {
         $("div#footer").html(my_var);
     });
 
 
 $.ajax({
-        url: 'http://startcult.com/WebServices.aspx/GetLook',
+        url: 'http://startcult.com/WebServices.aspx/GetProduct',
         type: "POST",
         dataType: 'json',
-        data: JSON.stringify({ 'userId': '0', 'lookId': getQueryVariable('lookId')}),
+        data: JSON.stringify({ 'userId': '0', 'productId': getQueryVariable('prodId'), 'colorId' : getQueryVariable('colorId'),'categoryId' : getQueryVariable('catId')}),
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             updatePage (response);
@@ -386,15 +335,14 @@ $.ajax({
 
 $(document).ready(function() {
 
-  $('meta[property="og:image"]').remove();
-  $("head").append('<meta property="og:image" content='+getImagePath()+'>');
-
-      var lookId = getQueryVariable('lookId');
+      var prodId = getQueryVariable('prodId');
+      var colorId = getQueryVariable('colorId');
+      var categoryId = getQueryVariable('catId');
       setTimeout(function() {
        loadPage();
-    }, 25);
-   window.location = "cuco://?l="+lookId;
-  
+  }, 25);
+   window.location = "cuco://?pId="+prodId+"&cId="+colorId+"&catId="+categoryId;
+
 });
 </script>
 </body>
